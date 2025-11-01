@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=69.0", "wheel", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pico-fastapi"
+dynamic = ["version"]
+authors = [{ name = "David Perez Cabrera", email = "dperezcabrera@gmail.com" }]
+description = "Pico-ioc integration for FastAPI. Adds Spring Boot-style controllers, autoconfiguration, and scopes (request, websocket, session)."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+keywords = [
+    "ioc", 
+    "di", 
+    "dependency injection", 
+    "fastapi", 
+    "inversion of control", 
+    "spring boot",
+    "controller"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "pico-ioc >= 2.0", 
+    "fastapi >= 0.100"
+]
+
+[project.optional-dependencies]
+session = ["starlette-session"]
+run = ["uvicorn[standard]"]
+
+[project.urls]
+Homepage = "https://github.com/dperezcabrera/pico-fastapi"
+Repository = "https://github.com/dperezcabrera/pico-fastapi"
+"Issue Tracker" = "https://github.com/dperezcabrera/pico-fastapi/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pico_fastapi*"]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+fallback_version = "0.1.0"
+write_to = "src/pico_fastapi/_version.py"
+write_to_template = "__version__ = '{version}'\n"
