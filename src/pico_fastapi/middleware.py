@@ -25,5 +25,7 @@ class PicoScopeMiddleware:
                 websocket_id = str(uuid.uuid4())
                 with self.container.scope("websocket", websocket_id):
                     await self.app(scope, receive, send)
+
             else:
                 await self.app(scope, receive, send)
+
