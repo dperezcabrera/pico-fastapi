@@ -9,12 +9,19 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=dperezcabrera_pico-fastapi&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=dperezcabrera_pico-fastapi)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=dperezcabrera_pico-fastapi&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=dperezcabrera_pico-fastapi)
 
-**pico-fastapi** integrates **Pico-IoC** with **FastAPI**, enabling *constructor-based dependency injection*, scoped lifecycles, and clean architectural boundaries — without global state or FastAPI dependency functions.
+# Pico-FastAPI
+
+**[Pico-FastAPI](https://github.com/dperezcabrera/pico-fastapi)** integrates **[Pico-IoC](https://github.com/dperezcabrera/pico-ioc)** with **[FastAPI](https://github.com/fastapi/fastapi)** — combining the power of *true inversion of control* with one of the most elegant and high-performance Python web frameworks.
+
+It enables *constructor-based dependency injection*, scoped lifecycles, and clean architectural boundaries — all without global state or FastAPI’s function-based dependency injection.
 
 > 🐍 Requires **Python 3.10+**  
+> ⚡ Built on **FastAPI**, one of the fastest and most developer-friendly frameworks in Python  
 > ✅ Fully async-compatible  
 > ✅ Real IoC (constructor injection, not function injection)  
-> ✅ Works with request, session, and websocket scopes  
+> ✅ Supports request, session, and websocket scopes
+
+With **Pico-FastAPI**, you get the speed, elegance, and async performance of FastAPI — enhanced with a real IoC container for clean, testable, and maintainable applications.
 
 ---
 
