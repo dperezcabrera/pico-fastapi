@@ -11,43 +11,42 @@
 
 # Pico-FastAPI
 
-**[Pico-FastAPI](https://github.com/dperezcabrera/pico-fastapi)** integrates **[Pico-IoC](https://github.com/dperezcabrera/pico-ioc)** with **[FastAPI](https://github.com/fastapi/fastapi)** — combining the power of *true inversion of control* with one of the most elegant and high-performance Python web frameworks.
+**[Pico-FastAPI](https://github.com/dperezcabrera/pico-fastapi)** seamlessly integrates **[Pico-IoC](https://github.com/dperezcabrera/pico-ioc)** with **[FastAPI](https://github.com/fastapi/fastapi)** — bringing *true inversion of control* and *constructor-based dependency injection* to one of the fastest and most elegant Python frameworks.
 
-It enables *constructor-based dependency injection*, scoped lifecycles, and clean architectural boundaries — all without global state or FastAPI’s function-based dependency injection.
+It provides scoped lifecycles, automatic controller registration, and clean architectural boundaries — all without global state or FastAPI’s function-based dependency system.
 
 > 🐍 Requires **Python 3.10+**  
-> ⚡ Built on **FastAPI**, one of the fastest and most developer-friendly frameworks in Python  
+> ⚡ Built on **FastAPI**, one of the fastest and most developer-friendly web frameworks in Python  
 > ✅ Fully async-compatible  
 > ✅ Real IoC (constructor injection, not function injection)  
-> ✅ Supports request, session, and websocket scopes
+> ✅ Supports `singleton`, `request`, `session`, and `websocket` scopes  
 
-With **Pico-FastAPI**, you get the speed, elegance, and async performance of FastAPI — enhanced with a real IoC container for clean, testable, and maintainable applications.
+With **Pico-FastAPI**, you get the speed, clarity, and async performance of FastAPI — enhanced by a real IoC container for clean, testable, and maintainable applications.
 
 ---
 
 ## 🎯 Why pico-fastapi?
 
-FastAPI’s built-in dependency system is function-based, which makes business logic tightly coupled to the framework.
-
-`pico-fastapi` moves dependency resolution to the **IoC container**.
+FastAPI’s built-in dependency system is *function-based*, which often ties business logic to the framework.  
+`pico-fastapi` moves dependency resolution into the **IoC container**, promoting separation of concerns and testability.
 
 | Concern | FastAPI Default | pico-fastapi |
-|--------|----------------|--------------|
+|----------|-----------------|---------------|
 | Dependency injection | Function-based | Constructor-based |
 | Architecture | Framework-driven | Domain-driven |
-| Testing | Must simulate DI functions | Component overrides at container init |
-| Scopes | Manual or ad-hoc | `singleton`, `request`, `session`, `websocket` |
+| Testing | Simulate DI calls | Override components in container |
+| Scopes | Manual/ad-hoc | Automatic (`singleton`, `request`, `session`, `websocket`) |
 
 ---
 
 ## 🧱 Core Features
 
-- `@controller` class-based routing
-- `@get`, `@post`, `@websocket`, etc.
-- Constructor injection for controllers & services
-- Automatic registration into FastAPI
-- Scoped resolution via middleware (`request`, `session`, `websocket`)
-- Full compatibility with Pico-IoC features: overrides, profiles, interceptors, cleanup
+- `@controller` class-based routing  
+- Route decorators: `@get`, `@post`, `@put`, `@delete`, `@patch`, `@websocket`  
+- Constructor injection for controllers and services  
+- Automatic registration into FastAPI  
+- Scoped resolution via middleware (`request`, `session`, `websocket`)  
+- Full **Pico-IoC** feature set: profiles, overrides, interceptors, cleanup hooks  
 
 ---
 
@@ -101,7 +100,7 @@ container = init(
     ]
 )
 
-app = container.get(FastAPI)  # ✅ retrieve the fully configured app
+app = container.get(FastAPI)  # ✅ fully configured FastAPI instance
 ```
 
 ---
@@ -114,15 +113,12 @@ from fastapi import WebSocket
 
 @controller
 class ChatController:
-    async def __init__(self):
-        pass
-
     @websocket("/ws")
     async def chat(self, websocket: WebSocket):
         await websocket.accept()
         while True:
-            message = await websocket.receive_text()
-            await websocket.send_text(f"Echo: {message}")
+            msg = await websocket.receive_text()
+            await websocket.send_text(f"Echo: {msg}")
 ```
 
 ---
@@ -153,17 +149,15 @@ assert client.get("/api/hello").json() == {"msg": "test"}
 
 ## ⚙️ How It Works
 
-* `@controller` classes are registered automatically
-* HTTP/WebSocket handlers are wrapped in a request or websocket scope
-* All dependencies (services, config, state) are resolved through Pico-IoC
-* Cleanup happens at application shutdown via lifespan integration
+* `@controller` classes are automatically discovered and registered
+* Each route executes within its own request or websocket scope
+* All dependencies (services, config, and state) are resolved via Pico-IoC
+* Cleanup and teardown occur at FastAPI’s lifespan phase
 
-No global state. No implicit singletons. No magic.
+No global state. No implicit singletons. No hidden magic — just pure IoC.
 
 ---
 
 ## 📝 License
 
-MIT — See `LICENSE`.
-
-
+MIT — see [`LICENSE`](LICENSE).
