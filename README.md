@@ -1,4 +1,3 @@
-````markdown
 # 📦 pico-fastapi
 
 [![PyPI](https://img.shields.io/pypi/v/pico-fastapi.svg)](https://pypi.org/project/pico-fastapi/)
