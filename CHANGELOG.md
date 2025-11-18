@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## [0.1.2] - 2025-11-18
+
+### Fixed
+- **Middleware Ordering:** Fixed a critical issue where `PicoScopeMiddleware` was always added last (outermost), preventing inner middlewares (like Authentication) from accessing the IoC container.
+- **Architecture:** Implemented a "Sandwich" strategy for `FastApiConfigurer`. Configurers with negative priority (`priority < 0`) now wrap the scope middleware (e.g., Session, CORS), while configurers with positive priority (`priority >= 0`) run inside the scope (e.g., Auth, Business Logic).
+
+---
+
 ## [0.1.1] - 2025-11-18
 
 ### Fixed

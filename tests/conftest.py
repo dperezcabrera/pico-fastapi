@@ -2,7 +2,6 @@ import pytest
 from dataclasses import dataclass, field
 from fastapi import FastAPI, WebSocket, Request
 from starlette.testclient import TestClient
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from pico_ioc import init, configuration, YamlTreeSource, component, cleanup, PicoContainer
 from pico_fastapi import FastApiConfigurer, controller, get, post, websocket
@@ -61,22 +60,31 @@ def validate_and_extract_jwt(token: str) -> Claims:
         return Claims(user_id="u-user", roles=["user"])
     raise PermissionError("Invalid JWT token")
 
-class JwtSecurityMiddleware(BaseHTTPMiddleware):
+class JwtSecurityMiddleware:
     def __init__(self, app, container: PicoContainer):
-        super().__init__(app)
+        self.app = app
         self.container = container
-    async def dispatch(self, request: Request, call_next):
-        token = request.headers.get("Authorization")
-        try:
-            user_ctx = await self.container.aget(UserContext)
-            if token and token.startswith("Bearer "):
-                token_data = token.split(" ")[1]
-                claims = validate_and_extract_jwt(token_data)
-                user_ctx.load_from_claims(claims)
-        except Exception:
-            pass
-        response = await call_next(request)
-        return response
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            # Standard ASGI header lookup
+            headers = dict(scope.get("headers", []))
+            auth_header = headers.get(b"authorization", b"").decode("latin1")
+            
+            try:
+                # Attempt to load user context
+                user_ctx = await self.container.aget(UserContext)
+                
+                if auth_header and auth_header.startswith("Bearer "):
+                    token_data = auth_header.split(" ")[1]
+                    claims = validate_and_extract_jwt(token_data)
+                    user_ctx.load_from_claims(claims)
+            except Exception as e:
+                # Debug print to see failures in tests
+                print(f"DEBUG: Auth Middleware Failed: {e}")
+                pass
+        
+        await self.app(scope, receive, send)
 
 @component
 class SecurityConfigurer(FastApiConfigurer):
@@ -117,7 +125,8 @@ class CartController:
     async def get_cart(self):
         return {"items": self.cart.items, "cart_id": self.cart.id}
 
-@controller(tags=["WebSocket"])
+# CHANGED: Explicitly set scope="websocket" to avoid ScopeError (default is "request")
+@controller(tags=["WebSocket"], scope="websocket")
 class ChatController:
     def __init__(self, manager: WebSocketManager):
         self.manager = manager
@@ -156,4 +165,3 @@ def app(config_file):
 def client(app):
     with TestClient(app) as c:
         yield c
-

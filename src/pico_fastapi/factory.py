@@ -123,11 +123,19 @@ class PicoLifespanConfigurer:
                 raise InvalidConfigurerError(first_invalid)
         
         sorted_configurers = sorted(valid_configurers, key=_priority_of)
-        for configurer in sorted_configurers:
+
+        inner_configurers = [c for c in sorted_configurers if _priority_of(c) >= 0]
+        outer_configurers = [c for c in sorted_configurers if _priority_of(c) < 0]
+
+        for configurer in inner_configurers:
+            configurer.configure(app)
+
+        app.add_middleware(PicoScopeMiddleware, container=container)
+
+        for configurer in outer_configurers:
             configurer.configure(app)
         
         register_controllers(app, container)
-        app.add_middleware(PicoScopeMiddleware, container=container)
         
         @asynccontextmanager
         async def lifespan_manager(app_instance):
