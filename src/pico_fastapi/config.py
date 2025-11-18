@@ -16,4 +16,3 @@ class FastApiSettings:
     title: str = "Pico-FastAPI App"
     version: str = "1.0.0"
     debug: bool = False
-
