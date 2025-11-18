@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Set, Type, TypeVar, ParamSpec, TypedDict, cast
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, ParamSpec, TypedDict, cast
 from pico_ioc import component
 
 P = ParamSpec("P")
@@ -11,12 +11,12 @@ class RouteInfo(TypedDict):
 
 PICO_ROUTE_KEY: str = "_pico_route_info"
 PICO_CONTROLLER_META: str = "_pico_controller_meta"
-CONTROLLERS: Set[Type[Any]] = set()
+IS_CONTROLLER_ATTR: str = "_pico_is_controller"
 
 def controller(cls: Optional[Type[Any]] = None, *, scope: str = "request", **kwargs: Any) -> Callable[[Type[Any]], Type[Any]] | Type[Any]:
     def decorate(c: Type[Any]) -> Type[Any]:
         setattr(c, PICO_CONTROLLER_META, kwargs)
-        CONTROLLERS.add(c)
+        setattr(c, IS_CONTROLLER_ATTR, True)
         return component(c, scope=scope)
     return decorate if cls is None else decorate(cls)
 
@@ -44,4 +44,3 @@ def patch(path: str, **kwargs: Any) -> Callable[[Callable[P, R]], Callable[P, R]
 
 def websocket(path: str, **kwargs: Any) -> Callable[[Callable[P, R]], Callable[P, R]]:
     return _create_route_decorator("WEBSOCKET", path, **kwargs)
-

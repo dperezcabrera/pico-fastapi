@@ -1,13 +1,13 @@
 import dataclasses
 import inspect
 from contextlib import asynccontextmanager
-from typing import List, Any, Mapping
+from typing import List, Any
 from fastapi import FastAPI, APIRouter, WebSocket
 from starlette.responses import JSONResponse, Response
 from pico_ioc import factory, provides, component, PicoContainer, configure
 from .config import FastApiSettings, FastApiConfigurer
 from .middleware import PicoScopeMiddleware
-from .decorators import PICO_ROUTE_KEY, PICO_CONTROLLER_META, CONTROLLERS
+from .decorators import PICO_ROUTE_KEY, PICO_CONTROLLER_META, IS_CONTROLLER_ATTR
 from .exceptions import InvalidConfigurerError, NoControllersFoundError
 
 def _priority_of(obj: Any) -> int:
@@ -40,21 +40,42 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
     return http_route_handler
 
 def _create_websocket_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
+    original_params = list(sig.parameters.values())[1:]
+    ws_param_name = None
+    new_params = []
+
+    for param in original_params:
+        if param.annotation is WebSocket:
+            ws_param_name = param.name
+        else:
+            new_params.append(param)
+
+    if not ws_param_name:
+        ws_param_name = "websocket"
+
     async def websocket_route_handler(websocket: WebSocket, **kwargs):
         controller_instance = await container.aget(controller_cls)
         method_to_call = getattr(controller_instance, method_name)
-        await method_to_call(websocket, **kwargs)
+        kwargs[ws_param_name] = websocket
+        await method_to_call(**kwargs)
     
-    original_params = list(sig.parameters.values())[1:]
-    new_params = [p for p in original_params if p.name != "websocket"]
-    ws_param = inspect.Parameter("websocket", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=WebSocket)
-    websocket_route_handler.__signature__ = sig.replace(parameters=[ws_param] + new_params)
+    ws_wrapper_param = inspect.Parameter("websocket", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=WebSocket)
+    websocket_route_handler.__signature__ = sig.replace(parameters=[ws_wrapper_param] + new_params)
     return websocket_route_handler
 
 def register_controllers(app: FastAPI, container: PicoContainer):
-    controller_classes = [cls for cls in CONTROLLERS if isinstance(cls, type)]
+    locator = getattr(container, "_locator", None)
+    if not locator:
+        return
+
+    controller_classes = []
+    for key, _ in locator._metadata.items():
+        if isinstance(key, type) and getattr(key, IS_CONTROLLER_ATTR, False):
+            controller_classes.append(key)
+
     if not controller_classes:
         raise NoControllersFoundError()
+
     for cls in controller_classes:
         meta = getattr(cls, PICO_CONTROLLER_META, {}) or {}
         router = APIRouter(

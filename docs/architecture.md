@@ -7,15 +7,13 @@ Its purpose is not to replace FastAPI — but to ensure that **application logic
 
 ## 1. High-Level Design
 
-```
-
-```
+```text
             ┌─────────────────────────────┐
             │          FastAPI            │
             │   (HTTP / WebSocket App)    │
             └──────────────┬──────────────┘
                            │
-                      Route Registration
+                    Route Registration
                            │
             ┌──────────────▼───────────────┐
             │       pico-fastapi           │
@@ -33,59 +31,55 @@ Its purpose is not to replace FastAPI — but to ensure that **application logic
                  Settings, Domain Logic
 ```
 
-```
+-----
 
----
+## 2\. Data Flow (HTTP Request)
 
-## 2. Data Flow (HTTP Request)
-
-```
-
-```
+```text
 Request Arrives
        │
        ▼
-```
-
 ┌───────────────────┐
-│ PicoScopeMiddleware│  ← Creates a *request-scoped* container
+│PicoScopeMiddleware│  ← Creates a *request-scoped* container
 └───────┬───────────┘
-│
-▼
+        │
+        ▼
 ┌───────────────────┐
-│ FastAPI Router     │
+│  FastAPI Router   │
 └───────┬───────────┘
-│ (handler is a wrapper)
-▼
+        │ (handler is a wrapper)
+        ▼
 ┌────────────────────────────────────────────────┐
 │ controller_instance = container.aget(Controller)│
 └────────────────────────────────────────────────┘
-│
-▼
+        │
+        ▼
 Controller method executes
-│
-▼
+        │
+        ▼
 Response out
-│
-▼
+        │
+        ▼
 Request-scope disposed + async cleanup
-
-````
+```
 
 ### Key guarantees:
+
 | Concern | Solution |
 |--------|----------|
 | No global singletons | Per-request scoped container |
 | Constructor-based DI | All controllers resolved via IoC |
 | Clean shutdown | Async cleanup via lifespan context |
 
----
+-----
 
-## 3. Controller Model
+## 3\. Controller Model
 
-- Controllers are **regular Python classes**
-- They declare dependencies in `__init__`
-- They use decorators to express routing
+  - Controllers are **regular Python classes**
+  - They declare dependencies in `__init__`
+  - They use decorators to express routing
+
+<!-- end list -->
 
 ```python
 @controller(prefix="/api")
@@ -96,19 +90,21 @@ class UserController:
     @get("/users")
     async def list(self):
         return self.service.list_users()
-````
+```
 
 No dependency injection *inside endpoint signatures*.
 
----
+-----
 
-## 4. Route Registration Strategy
+## 4\. Route Registration Strategy
 
 At startup:
 
-1. `CONTROLLERS` collects all classes decorated with `@controller`.
-2. For each method with `@get`, `@post`, etc., pico-fastapi registers a FastAPI route.
-3. Each route uses a dynamically generated wrapper:
+1.  **Inspection**: pico-fastapi queries the initialized **Pico-IoC container** (specifically its component locator) to find all registered components marked as controllers. It relies on the container as the single source of truth, avoiding global state.
+2.  **Registration**: For each method decorated with `@get`, `@post`, etc., it registers a FastAPI route.
+3.  **Wrapping**: Each route uses a dynamically generated wrapper:
+
+<!-- end list -->
 
 ```python
 async def route_handler(...):
@@ -119,19 +115,19 @@ async def route_handler(...):
 
 This ensures **all controller access goes through Pico-IoC**.
 
----
+-----
 
-## 5. WebSocket Execution Model
+## 5\. WebSocket Execution Model
 
 WebSocket handlers:
 
-* Receive a live `WebSocket` instance
-* Are resolved via the request-scoped container just like HTTP routes
-* pico-fastapi provides a simple echo loop by default in examples, but it does not enforce patterns
+  * Receive a live `WebSocket` instance
+  * Are resolved via the request-scoped container just like HTTP routes
+  * pico-fastapi provides a simple echo loop by default in examples, but it does not enforce patterns
 
 Lifecycle:
 
-```
+```python
 websocket.accept()
 while active:
     message = websocket.receive_text()
@@ -140,9 +136,9 @@ while active:
 
 Custom messaging layers (hubs, brokers, rooms) can be layered on top.
 
----
+-----
 
-## 6. Scoping Model
+## 6\. Scoping Model
 
 | Scope                                 | Use Case                         | Behavior                           |
 | ------------------------------------- | -------------------------------- | ---------------------------------- |
@@ -152,38 +148,38 @@ Custom messaging layers (hubs, brokers, rooms) can be layered on top.
 
 Scopes are enforced by **Pico-IoC**, not by FastAPI.
 
----
+-----
 
-## 7. Cleanup & Lifespan
+## 7\. Cleanup & Lifespan
 
 During FastAPI startup and shutdown, pico-fastapi:
 
-* Attaches a `lifespan` context
-* Ensures `await container.cleanup_all_async()` runs
-* Then calls `container.shutdown()`
+  * Attaches a `lifespan` context
+  * Ensures `await container.cleanup_all_async()` runs
+  * Then calls `container.shutdown()`
 
 This guarantees all components supporting `async __aenter__/__aexit__` or `cleanup()` are safely closed.
 
----
+-----
 
-## 8. Architectural Intent
+## 8\. Architectural Intent
 
 **pico-fastapi exists to:**
 
-* Decouple **business logic** from **web framework code**
-* Support **hexagonal / clean architecture**
-* Allow **test-friendly, replaceable dependencies**
-* Enable **complex service graphs** with clear ownership
+  * Decouple **business logic** from **web framework code**
+  * Support **hexagonal / clean architecture**
+  * Allow **test-friendly, replaceable dependencies**
+  * Enable **complex service graphs** with clear ownership
 
 It does *not* attempt to:
 
-* Replace FastAPI’s routing, docs, or validation system
-* Provide magic auto-scanning of modules
-* Hide the IoC container from developers
+  * Replace FastAPI’s routing, docs, or validation system
+  * Provide magic auto-scanning of modules
+  * Hide the IoC container from developers
 
----
+-----
 
-## 9. When to Use
+## 9\. When to Use
 
 Use pico-fastapi if your application values:
 
@@ -198,9 +194,9 @@ Avoid pico-fastapi if your app is:
 ✖ Built around function-based handlers
 ✖ Not concerned with composition or modularity
 
----
+-----
 
-## 10. Summary
+## 10\. Summary
 
 `pico-fastapi` is a **structural architecture tool**:
 It lets FastAPI focus on *transport concerns*, while **Pico-IoC** owns *application composition*.
@@ -208,5 +204,4 @@ It lets FastAPI focus on *transport concerns*, while **Pico-IoC** owns *applicat
 > Framework stays replaceable.
 > Core stays pure.
 > Dependencies stay explicit.
-
 
