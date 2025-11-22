@@ -1,0 +1,68 @@
+site_name: pico-fastapi
+site_description: Thin integration layer between Pico-IoC and FastAPI.
+site_url: https://dperezcabrera.github.io/pico-fastapi/
+repo_url: https://github.com/dperezcabrera/pico-fastapi
+repo_name: dperezcabrera/pico-fastapi
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - scheme: default
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: lime
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Concepts & Architecture:
+      - Architecture Overview: architecture.md
+      - Test Suite Explanation: explanation/test-suite.md
+  - How-To Guides:
+      - Session Shopping Cart: how-to/session-cart.md
+      - Apply Settings (DI): how-to/settings-applied.md
+      - WebSocket Chat: how-to/websocket-chat.md
+  - Reference:
+      - Configuration: reference/config.md
+      - Exceptions: reference/exceptions.md
+  - Releases:
+      - v0.1.2: releases/v0.1.2.md
+      - v0.1.1: releases/v0.1.1.md
+      - Changelog: CHANGELOG.md

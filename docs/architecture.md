@@ -1,66 +1,80 @@
 # 🧭 Architecture Overview — pico-fastapi
 
-`pico-fastapi` is a thin integration layer that connects **Pico-IoC**'s inversion-of-control container with **FastAPI**'s routing and request handling.  
+`pico-fastapi` is a thin integration layer that connects **Pico-IoC**'s inversion-of-control container with **FastAPI**'s routing and request handling.
 Its purpose is not to replace FastAPI — but to ensure that **application logic is resolved through the container**, not through function-based dependency injection.
 
 ---
 
 ## 1. High-Level Design
 
-```text
-            ┌─────────────────────────────┐
-            │          FastAPI            │
-            │   (HTTP / WebSocket App)    │
-            └──────────────┬──────────────┘
-                           │
-                    Route Registration
-                           │
-            ┌──────────────▼───────────────┐
-            │       pico-fastapi           │
-            │  (Controller → Route Glue)   │
-            └──────────────┬───────────────┘
-                           │
-                    IoC Resolution
-                           │
-            ┌──────────────▼───────────────┐
-            │           Pico-IoC           │
-            │  (Container / Scopes / DI)   │
-            └──────────────┬───────────────┘
-                           │
-                 Business Services, Repos,
-                 Settings, Domain Logic
+```mermaid
+graph TD
+    subgraph FastAPI_Layer [FastAPI Host]
+        API[FastAPI Application]
+    end
+
+    subgraph Glue_Layer [pico-fastapi]
+        Reg[Route Registration]
+        Wrapper[Handler Wrappers]
+    end
+
+    subgraph IoC_Layer [Pico-IoC]
+        Container[Container]
+        DI[Dependency Injection]
+        Scopes[Scope Management]
+    end
+
+    subgraph Domain_Layer [Application Domain]
+        Services[Services]
+        Repos[Repositories]
+        Logic[Business Logic]
+    end
+
+    API -->|Registers Routes| Reg
+    Reg -->|Wraps| Wrapper
+    Wrapper -->|Requests Instance| Container
+    Container -->|Resolves| DI
+    DI -->|Injects| Scopes
+    Scopes -->|Manages| Services
+    Services -->|Uses| Repos
 ```
 
 -----
 
 ## 2\. Data Flow (HTTP Request)
 
-```text
-Request Arrives
-       │
-       ▼
-┌───────────────────┐
-│PicoScopeMiddleware│  ← Creates a *request-scoped* container
-└───────┬───────────┘
-        │
-        ▼
-┌───────────────────┐
-│  FastAPI Router   │
-└───────┬───────────┘
-        │ (handler is a wrapper)
-        ▼
-┌────────────────────────────────────────────────┐
-│ controller_instance = container.aget(Controller)│
-└────────────────────────────────────────────────┘
-        │
-        ▼
-Controller method executes
-        │
-        ▼
-Response out
-        │
-        ▼
-Request-scope disposed + async cleanup
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Middleware as PicoScopeMiddleware
+    participant Router as FastAPI Router
+    participant Container as Pico Container
+    participant Controller
+
+    Client->>Middleware: HTTP Request
+    activate Middleware
+    Middleware->>Container: Create Request Scope
+    Middleware->>Router: Forward Request
+    activate Router
+    
+    Note over Router, Controller: Route matched (Wrapper function)
+    
+    Router->>Container: await container.aget(ControllerClass)
+    activate Container
+    Container-->>Router: Controller Instance (Dependencies Injected)
+    deactivate Container
+    
+    Router->>Controller: Execute Method(args)
+    activate Controller
+    Controller-->>Router: Response Data
+    deactivate Controller
+    
+    Router-->>Middleware: Response
+    deactivate Router
+
+    Middleware->>Container: Cleanup Scope (Async)
+    Middleware-->>Client: HTTP Response
+    deactivate Middleware
 ```
 
 ### Key guarantees:
@@ -140,11 +154,11 @@ Custom messaging layers (hubs, brokers, rooms) can be layered on top.
 
 ## 6\. Scoping Model
 
-| Scope                                 | Use Case                         | Behavior                           |
-| ------------------------------------- | -------------------------------- | ---------------------------------- |
-| `singleton`                           | shared infra (DB pools, clients) | One instance per app               |
-| `request` *(default for controllers)* | HTTP/WebSocket request           | New instance / cleanup per request |
-| `session` or custom                   | multi-step workflows             | Container-managed                  |
+| Scope | Use Case | Behavior |
+| ----- | -------- | -------- |
+| `singleton` | shared infra (DB pools, clients) | One instance per app |
+| `request` *(default for controllers)* | HTTP/WebSocket request | New instance / cleanup per request |
+| `session` or custom | multi-step workflows | Container-managed |
 
 Scopes are enforced by **Pico-IoC**, not by FastAPI.
 
@@ -177,31 +191,5 @@ It does *not* attempt to:
   * Provide magic auto-scanning of modules
   * Hide the IoC container from developers
 
------
-
-## 9\. When to Use
-
-Use pico-fastapi if your application values:
-
-✔ Clear layering
-✔ Replaceable services (e.g., real vs. mock, local vs. cloud)
-✔ DDD, hexagonal architecture, microservices, or plugin systems
-✔ Maintaining control over object creation and scopes
-
-Avoid pico-fastapi if your app is:
-
-✖ A small one-file script
-✖ Built around function-based handlers
-✖ Not concerned with composition or modularity
-
------
-
-## 10\. Summary
-
-`pico-fastapi` is a **structural architecture tool**:
-It lets FastAPI focus on *transport concerns*, while **Pico-IoC** owns *application composition*.
-
-> Framework stays replaceable.
-> Core stays pure.
-> Dependencies stay explicit.
+<!-- end list -->
 
