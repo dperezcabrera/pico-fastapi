@@ -62,7 +62,4 @@ nav:
   - Reference:
       - Configuration: reference/config.md
       - Exceptions: reference/exceptions.md
-  - Releases:
-      - v0.1.2: releases/v0.1.2.md
-      - v0.1.1: releases/v0.1.1.md
-      - Changelog: CHANGELOG.md
+  - Changelog: CHANGELOG.md
