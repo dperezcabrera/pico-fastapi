@@ -52,30 +52,24 @@ class GreeterController:
 Finally, we set up the container and create the FastAPI application.
 
 ```python
-# main.py
 from fastapi import FastAPI
-from pico_ioc import PicoContainer, component
-from pico_fastapi import PicoLifespanConfigurer, register_controllers
-
-# Import your modules so the container can find the @component decorators
-import services
-import controllers
+from pico_ioc import init
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    container = init(
+        modules=[
+            "controllers",           # Tu módulo donde está ApiController
+            "services",              # Tu módulo donde está MyService
+            "pico_fastapi.factory",  # ¡Importante! Habilita la integración
+        ]
+    )
     
-    # Initialize the container
-    container = PicoContainer()
-    
-    # Create a generic configurer to handle lifecycle and middleware
-    # Note: In a real app, you might use FastApiAppFactory, 
-    # but here we do it manually for clarity.
-    lifespan = PicoLifespanConfigurer()
-    lifespan.setup_fastapi(container, app, configurers=[])
-    
-    return app
+    # Obtenemos la instancia de FastAPI completamente configurada del contenedor
+    return container.get(FastAPI)
 
+# Punto de entrada para uvicorn
 app = create_app()
+
 ```
 
 ## Step 4: Run it
