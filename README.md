@@ -138,7 +138,7 @@ class MyService:
 from pico_stack import init
 from fastapi import FastAPI
 
-# No need to declare "pico_fastapi.factory" anymore.
+# No need to declare "pico_fastapi" anymore.
 # pico-fastapi is auto-discovered via entry points.
 
 container = init(
@@ -183,7 +183,7 @@ class FakeService:
         return "test"
 
 container = init(
-    modules=["controllers", "services", "pico_fastapi.factory"],
+    modules=["controllers", "services", "pico_fastapi"],
     overrides={"MyService": FakeService()}
 )
 
@@ -226,7 +226,7 @@ from fastapi import FastAPI
 
 container = init(
     modules=[
-        "pico_fastapi.factory",
+        "pico_fastapi",
         "static_config",
     ],
     config=configuration(
@@ -333,7 +333,7 @@ class ProfileController:
 
 container = init(
     modules=[
-        "pico_fastapi.factory",
+        "pico_fastapi",
         "jwt_config",
         "controllers",
     ]
