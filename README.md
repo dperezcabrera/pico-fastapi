@@ -96,7 +96,55 @@ container = init(
     modules=[
         "controllers",
         "services",
-        "pico_fastapi.factory",
+        "pico_fastapi",
+    ]
+)
+
+app = container.get(FastAPI)
+```
+---
+
+# 🚀 Quick Example (with pico-stack auto-discovery)
+
+### 1. Controller
+
+```python
+from pico_fastapi import controller, get
+
+@controller(prefix="/api")
+class ApiController:
+    def __init__(self, service: "MyService"):
+        self.service = service
+
+    @get("/hello")
+    async def hello(self):
+        return {"msg": self.service.greet()}
+```
+
+### 2. Service
+
+```python
+from pico_ioc import component
+
+@component
+class MyService:
+    def greet(self) -> str:
+        return "hello from service"
+```
+
+### 3. App Initialization (Using pico-stack)
+
+```python
+from pico_stack import init
+from fastapi import FastAPI
+
+# No need to declare "pico_fastapi.factory" anymore.
+# pico-fastapi is auto-discovered via entry points.
+
+container = init(
+    modules=[
+        "controllers",
+        "services",
     ]
 )
 
