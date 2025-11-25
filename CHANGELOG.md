@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## v0.2.0 — Ecosystem Integration (2025-11-25)
+
+### 🔌 New
+- Added native `pico-stack` auto-discovery using the `pico_stack.modules` entry point.
+- `pico-fastapi` is now automatically detected and loaded when initializing applications with `pico-stack`.
+
+### 🧱 No Behavioral Changes
+- No updates to middleware behavior.
+- No DI or request lifecycle changes.
+- No breaking changes.
+
+This release focuses exclusively on ecosystem alignment and improving the developer experience when bootstrapping applications with `pico-stack`.
+
+---
+
 ## [0.1.2] - 2025-11-18
 
 ### Fixed
