@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## v0.2.1 — Fixes & Quality (2026-02-05)
+
+### Fixed
+- Fixed CI badge in README pointing to pico-ioc instead of pico-fastapi.
+- Fixed all references from `pico-stack` to `pico-boot` in CHANGELOG and release notes.
+- Fixed 5 broken unit tests against current pico-ioc attribute names (`_pico_meta`, `_pico_infra`).
+- Fixed middleware test mock not propagating exceptions correctly.
+- Fixed factory test expecting silent return instead of `NoControllersFoundError`.
+- Removed redundant `pip install pico-ioc fastapi` from README (already dependencies).
+
+### Changed
+- Bumped `pico-ioc` dependency from `>= 2.1.3` to `>= 2.2.0`.
+- Dropped Python 3.10 from CI matrix, tox and Makefile (requires-python is `>=3.11`).
+- Changed `version_scheme` from `post-release` to `guess-next-dev` for clean release versions.
+
+---
+
 ## v0.2.0 — Ecosystem Integration (2025-11-25)
 
 ### 🔌 New

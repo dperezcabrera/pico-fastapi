@@ -3,8 +3,8 @@
 In this tutorial, we will build a simple “Greeting API” using `pico-fastapi`.
 You will learn how to define services, create controllers, and wire everything together using the container.
 
-> 💡 **Recommended:** Use `pico-stack` for auto-discovery and zero-config bootstrapping.
-> If you are not using `pico-stack`, see the **Classic Version (without pico-stack)** linked below.
+> 💡 **Recommended:** Use `pico-boot` for auto-discovery and zero-config bootstrapping.
+> If you are not using `pico-boot`, see the **Classic Version (without pico-boot)** linked below.
 
 ---
 
@@ -13,7 +13,7 @@ You will learn how to define services, create controllers, and wire everything t
 Install all required packages:
 
 ```bash
-pip install fastapi uvicorn pico-ioc pico-fastapi pico-stack
+pip install fastapi uvicorn pico-ioc pico-fastapi pico-boot
 ```
 
 ---
@@ -51,15 +51,15 @@ class GreeterController:
 
 ---
 
-# 🚀 Step 3: Wire the Application (Using pico-stack)
+# 🚀 Step 3: Wire the Application (Using pico-boot)
 
-With `pico-stack`, `pico-fastapi` is automatically discovered via entry points.
+With `pico-boot`, `pico-fastapi` is automatically discovered via entry points.
 You only need to list **your** modules.
 
 ```python
 # main.py
 from fastapi import FastAPI
-from pico_stack import init
+from pico_boot import init
 
 def create_app() -> FastAPI:
     container = init(
@@ -103,12 +103,12 @@ You will see the automatically generated Swagger UI with your `/greet/{name}` en
 3. **No global state**
    Scopes are created and cleaned up automatically via fastapi middleware.
 
-4. **Auto-discovery with pico-stack**
+4. **Auto-discovery with pico-boot**
    Your modules stay clean; pico-fastapi loads itself automatically.
 
 ---
 
-# 📎 Classic Version (Without pico-stack)
+# 📎 Classic Version (Without pico-boot)
 
 If you want the version that uses **only `pico_ioc.init()`**,
 you can find it here:
@@ -124,7 +124,7 @@ container = init(
     modules=[
         "controllers",
         "services",
-        "pico_fastapi",   # Required only without pico-stack
+        "pico_fastapi",   # Required only without pico-boot
     ]
 )
 ```
