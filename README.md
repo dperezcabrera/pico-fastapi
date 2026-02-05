@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/pico-fastapi.svg)](https://pypi.org/project/pico-fastapi/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/dperezcabrera/pico-fastapi)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![CI (tox matrix)](https://github.com/dperezcabrera/pico-ioc/actions/workflows/ci.yml/badge.svg)
+![CI (tox matrix)](https://github.com/dperezcabrera/pico-fastapi/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/dperezcabrera/pico-fastapi/branch/main/graph/badge.svg)](https://codecov.io/gh/dperezcabrera/pico-fastapi)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dperezcabrera_pico-fastapi&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dperezcabrera_pico-fastapi)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=dperezcabrera_pico-fastapi&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=dperezcabrera_pico-fastapi)
@@ -16,7 +16,7 @@
 
 It provides scoped lifecycles, automatic controller registration, and clean architectural boundaries, without global state and without FastAPI’s function-based dependency system.
 
-> 🐍 Requires Python 3.10+  
+> 🐍 Requires Python 3.11+
 > ⚡ Built on FastAPI  
 > ✅ Fully async-compatible  
 > ✅ Real IoC with constructor injection  
@@ -55,12 +55,6 @@ FastAPI’s built-in dependency system is function-based, which often ties busin
 ```bash
 pip install pico-fastapi
 ````
-
-Also install:
-
-```bash
-pip install pico-ioc fastapi
-```
 
 ---
 
@@ -104,7 +98,7 @@ app = container.get(FastAPI)
 ```
 ---
 
-# 🚀 Quick Example (with pico-stack auto-discovery)
+# 🚀 Quick Example (with pico-boot auto-discovery)
 
 ### 1. Controller
 
@@ -132,10 +126,10 @@ class MyService:
         return "hello from service"
 ```
 
-### 3. App Initialization (Using pico-stack)
+### 3. App Initialization (Using pico-boot)
 
 ```python
-from pico_stack import init
+from pico_boot import init
 from fastapi import FastAPI
 
 # No need to declare "pico_fastapi" anymore.
