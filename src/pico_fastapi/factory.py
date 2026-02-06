@@ -1,5 +1,6 @@
 import dataclasses
 import inspect
+import logging
 from contextlib import asynccontextmanager
 from typing import List, Any
 from fastapi import FastAPI, APIRouter, WebSocket
@@ -8,7 +9,9 @@ from pico_ioc import factory, provides, component, PicoContainer, configure
 from .config import FastApiSettings, FastApiConfigurer
 from .middleware import PicoScopeMiddleware
 from .decorators import PICO_ROUTE_KEY, PICO_CONTROLLER_META, IS_CONTROLLER_ATTR
-from .exceptions import InvalidConfigurerError, NoControllersFoundError
+from .exceptions import NoControllersFoundError
+
+logger = logging.getLogger(__name__)
 
 def _priority_of(obj: Any) -> int:
     try:
@@ -59,6 +62,7 @@ def _create_websocket_handler(container: PicoContainer, controller_cls: type, me
 
     if not ws_param_name:
         ws_param_name = "websocket"
+        logger.debug("No WebSocket-annotated parameter found in %s.%s, defaulting to 'websocket'", controller_cls.__name__, method_name)
 
     async def websocket_route_handler(websocket: WebSocket, **kwargs):
         controller_instance = await container.aget(controller_cls)
@@ -133,11 +137,13 @@ def register_controllers(app: FastAPI, container: PicoContainer):
         app.include_router(router)
 
 def _validate_configurers(configurers: List[Any]) -> List[FastApiConfigurer]:
-    """Validate and filter configurers, raising on invalid ones."""
+    """Validate and filter configurers, discarding invalid ones with a warning."""
     valid = []
     for c in configurers:
         if isinstance(c, FastApiConfigurer) and callable(getattr(c, "configure", None)):
             valid.append(c)
+        else:
+            logger.warning("Discarding invalid configurer %r: does not implement FastApiConfigurer protocol", c)
     return valid
 
 

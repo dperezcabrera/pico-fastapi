@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## v0.2.2 — Internal Quality (2026-02-06)
+
+### Changed
+- **Error Handling**: Replaced `InvalidConfigurerError` exception with a `logger.warning()` — invalid configurers are now logged and discarded instead of raising.
+- **Logging**: Added `logging` to `factory.py` for configurer validation and WebSocket parameter detection.
+
+### Removed
+- **`InvalidConfigurerError`**: Removed exception class, its export from `__init__.py`, and all related tests.
+
+### Fixed
+- **Code Quality**: Changed bare `except:` to `except Exception:` in test conftest.
+
+---
+
 ## v0.2.1 — Fixes & Quality (2026-02-05)
 
 ### Fixed

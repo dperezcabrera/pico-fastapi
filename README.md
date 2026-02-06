@@ -349,6 +349,19 @@ No global state and no implicit singletons.
 
 ---
 
+## 🤖 Claude Code Skills
+
+This project includes pre-designed skills for [Claude Code](https://claude.ai/claude-code), enabling AI-assisted development with pico-fastapi patterns.
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **Pico FastAPI Endpoint** | `/pico-fastapi` | Creates endpoints with controller-based routing and DI |
+| **Pico Test Generator** | `/pico-tests` | Generates tests for pico-framework components |
+
+See [Skills documentation](docs/skills.md) for full details and installation instructions.
+
+---
+
 ## 📝 License
 
 MIT
