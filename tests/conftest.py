@@ -38,7 +38,7 @@ class WebSocketManager:
             while True:
                 data = await websocket.receive_text()
                 await websocket.send_text(f"Echo of {data} (id: {self.id})")
-        except:
+        except Exception:
             pass
     @cleanup
     def on_disconnect(self):

@@ -141,5 +141,6 @@ nav:
     - Exceptions: reference/exceptions.md
   - Architecture: architecture.md
   - Test Suite: explanation/test-suite.md
+  - Claude Code Skills: skills.md
   - FAQ: faq.md
   - Changelog: CHANGELOG.md

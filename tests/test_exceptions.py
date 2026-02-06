@@ -2,7 +2,6 @@
 import pytest
 from pico_fastapi.exceptions import (
     PicoFastAPIError,
-    InvalidConfigurerError,
     NoControllersFoundError,
 )
 
@@ -25,42 +24,6 @@ class TestPicoFastAPIError:
             raise PicoFastAPIError("error")
         except Exception as e:
             assert isinstance(e, PicoFastAPIError)
-
-
-class TestInvalidConfigurerError:
-    """Tests for InvalidConfigurerError."""
-
-    def test_is_pico_fastapi_error_subclass(self):
-        """InvalidConfigurerError is a PicoFastAPIError subclass."""
-        assert issubclass(InvalidConfigurerError, PicoFastAPIError)
-
-    def test_message_includes_object_repr(self):
-        """Error message includes repr of invalid object."""
-        class InvalidThing:
-            pass
-
-        obj = InvalidThing()
-        error = InvalidConfigurerError(obj)
-
-        assert "InvalidThing" in str(error)
-        assert "does not implement FastApiConfigurer.configure(app)" in str(error)
-
-    def test_message_with_string_object(self):
-        """Error message works with string objects."""
-        error = InvalidConfigurerError("not a configurer")
-        assert "'not a configurer'" in str(error)
-
-    def test_message_with_none(self):
-        """Error message works with None."""
-        error = InvalidConfigurerError(None)
-        assert "None" in str(error)
-
-    def test_can_be_caught_as_pico_fastapi_error(self):
-        """InvalidConfigurerError can be caught as PicoFastAPIError."""
-        try:
-            raise InvalidConfigurerError("test")
-        except PicoFastAPIError as e:
-            assert isinstance(e, InvalidConfigurerError)
 
 
 class TestNoControllersFoundError:
@@ -98,7 +61,6 @@ class TestExceptionHierarchy:
         """All pico-fastapi exceptions can be caught with base class."""
         exceptions = [
             PicoFastAPIError("test"),
-            InvalidConfigurerError("test"),
             NoControllersFoundError(),
         ]
 
@@ -109,11 +71,3 @@ class TestExceptionHierarchy:
                 pass  # Should be caught
             except Exception:
                 pytest.fail(f"{type(exc).__name__} not caught as PicoFastAPIError")
-
-    def test_specific_exceptions_not_caught_by_siblings(self):
-        """InvalidConfigurerError not caught by NoControllersFoundError handler."""
-        with pytest.raises(InvalidConfigurerError):
-            try:
-                raise InvalidConfigurerError("test")
-            except NoControllersFoundError:
-                pass  # Should NOT catch

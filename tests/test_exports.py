@@ -43,11 +43,9 @@ class TestModuleExports:
         """Exception classes are exported from main module."""
         from pico_fastapi import (
             PicoFastAPIError,
-            InvalidConfigurerError,
             NoControllersFoundError,
         )
         assert issubclass(PicoFastAPIError, Exception)
-        assert issubclass(InvalidConfigurerError, PicoFastAPIError)
         assert issubclass(NoControllersFoundError, PicoFastAPIError)
 
     def test_all_exports_in_dunder_all(self):
@@ -66,7 +64,6 @@ class TestModuleExports:
             "websocket",
             "FastApiAppFactory",
             "PicoFastAPIError",
-            "InvalidConfigurerError",
             "NoControllersFoundError",
         }
 
