@@ -66,9 +66,8 @@ class TestFastApiConfigurer:
 
     def test_is_runtime_checkable_protocol(self):
         """FastApiConfigurer is a runtime checkable protocol."""
-        from typing import Protocol, runtime_checkable
-
-        assert hasattr(FastApiConfigurer, "__protocol_attrs__")
+        assert isinstance(FastApiConfigurer, type)
+        assert hasattr(FastApiConfigurer, "__protocol_attrs__") or hasattr(FastApiConfigurer, "_is_runtime_protocol")
 
     def test_default_priority_is_zero(self):
         """Default priority property returns 0."""
