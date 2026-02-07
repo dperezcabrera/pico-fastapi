@@ -1,23 +1,26 @@
 """Unit tests for pico_fastapi factory module."""
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
+
+from pico_fastapi.config import FastApiConfigurer
+from pico_fastapi.decorators import controller, get, post
+from pico_fastapi.exceptions import NoControllersFoundError
 from pico_fastapi.factory import (
-    _priority_of,
-    _normalize_http_result,
-    _find_controller_classes,
-    _validate_configurers,
-    _split_configurers_by_priority,
-    _apply_configurers,
-    register_controllers,
     FastApiAppFactory,
     PicoLifespanConfigurer,
+    _apply_configurers,
+    _find_controller_classes,
+    _normalize_http_result,
+    _priority_of,
+    _split_configurers_by_priority,
+    _validate_configurers,
+    register_controllers,
 )
-from pico_fastapi.exceptions import NoControllersFoundError
-from pico_fastapi.decorators import controller, get, post
-from pico_fastapi.config import FastApiConfigurer
 
 
 class TestPriorityOf:
@@ -25,6 +28,7 @@ class TestPriorityOf:
 
     def test_returns_zero_for_objects_without_priority(self):
         """Objects without priority attribute return 0."""
+
         class NoPriority:
             pass
 
@@ -32,6 +36,7 @@ class TestPriorityOf:
 
     def test_returns_priority_attribute_value(self):
         """Objects with priority attribute return its value."""
+
         class WithPriority:
             priority = 10
 
@@ -39,6 +44,7 @@ class TestPriorityOf:
 
     def test_returns_negative_priority(self):
         """Negative priority values are returned correctly."""
+
         class NegativePriority:
             priority = -50
 
@@ -46,6 +52,7 @@ class TestPriorityOf:
 
     def test_handles_non_int_priority_conversion(self):
         """String priority is converted to int."""
+
         class StringPriority:
             priority = "42"
 
@@ -53,6 +60,7 @@ class TestPriorityOf:
 
     def test_handles_exception_returns_zero(self):
         """Returns 0 if getting priority raises exception."""
+
         class BadPriority:
             @property
             def priority(self):
@@ -62,6 +70,7 @@ class TestPriorityOf:
 
     def test_handles_none_priority(self):
         """None priority returns 0."""
+
         class NonePriority:
             priority = None
 
@@ -97,9 +106,7 @@ class TestNormalizeHttpResult:
 
     def test_tuple_with_headers(self):
         """Tuple (content, status, headers) creates JSONResponse with headers."""
-        result = _normalize_http_result(
-            ({"data": "value"}, 200, {"X-Custom": "header"})
-        )
+        result = _normalize_http_result(({"data": "value"}, 200, {"X-Custom": "header"}))
         assert isinstance(result, JSONResponse)
         assert result.status_code == 200
 
@@ -140,6 +147,7 @@ class TestRegisterControllers:
 
     def test_registers_controller_routes(self):
         """Controllers with routes are registered on app."""
+
         @controller(prefix="/api")
         class TestController:
             @get("/items")
@@ -203,16 +211,19 @@ class TestPicoLifespanConfigurer:
 
         class LowPriority(FastApiConfigurer):
             priority = -10
+
             def configure(self, app):
                 app._configured_order.append("low")
 
         class HighPriority(FastApiConfigurer):
             priority = 10
+
             def configure(self, app):
                 app._configured_order.append("high")
 
         class MidPriority(FastApiConfigurer):
             priority = 0
+
             def configure(self, app):
                 app._configured_order.append("mid")
 
@@ -229,6 +240,7 @@ class TestPicoLifespanConfigurer:
         # We can't directly test setup_fastapi because it needs the container
         # to be properly setup, but we can verify the sorting behavior
         from pico_fastapi.factory import _priority_of
+
         sorted_conf = sorted(configurers, key=_priority_of)
 
         priorities = [_priority_of(c) for c in sorted_conf]
@@ -259,6 +271,7 @@ class TestFindControllerClasses:
 
     def test_finds_controller_classes(self):
         """Finds classes marked with @controller."""
+
         @controller
         class TestController:
             pass
@@ -284,8 +297,10 @@ class TestValidateConfigurers:
 
     def test_filters_valid_configurers(self):
         """Keeps only valid FastApiConfigurer instances."""
+
         class ValidConfigurer(FastApiConfigurer):
             priority = 0
+
             def configure(self, app):
                 pass
 
@@ -309,17 +324,24 @@ class TestSplitConfigurersByPriority:
 
     def test_splits_inner_and_outer(self):
         """Splits configurers into inner (>=0) and outer (<0)."""
+
         class Inner(FastApiConfigurer):
             priority = 10
-            def configure(self, app): pass
+
+            def configure(self, app):
+                pass
 
         class Outer(FastApiConfigurer):
             priority = -10
-            def configure(self, app): pass
+
+            def configure(self, app):
+                pass
 
         class Zero(FastApiConfigurer):
             priority = 0
-            def configure(self, app): pass
+
+            def configure(self, app):
+                pass
 
         configurers = [Inner(), Outer(), Zero()]
         inner, outer = _split_configurers_by_priority(configurers)
@@ -329,13 +351,18 @@ class TestSplitConfigurersByPriority:
 
     def test_sorts_by_priority(self):
         """Configurers are sorted by priority within each group."""
+
         class A(FastApiConfigurer):
             priority = 20
-            def configure(self, app): pass
+
+            def configure(self, app):
+                pass
 
         class B(FastApiConfigurer):
             priority = 5
-            def configure(self, app): pass
+
+            def configure(self, app):
+                pass
 
         configurers = [A(), B()]
         inner, outer = _split_configurers_by_priority(configurers)
@@ -355,11 +382,13 @@ class TestApplyConfigurers:
 
         class Conf1(FastApiConfigurer):
             priority = 0
+
             def configure(self, app):
                 app.called.append("conf1")
 
         class Conf2(FastApiConfigurer):
             priority = 0
+
             def configure(self, app):
                 app.called.append("conf2")
 

@@ -4,11 +4,13 @@ def test_admin_requires_auth(client):
     body = res.json()
     assert "error" in body
 
+
 def test_admin_forbidden_with_user_token(client):
     res = client.get("/api/admin/data", headers={"Authorization": "Bearer jwt_user_token"})
     assert res.status_code == 403
     body = res.json()
     assert "error" in body
+
 
 def test_admin_allowed_with_admin_token(client):
     res = client.get("/api/admin/data", headers={"Authorization": "Bearer jwt_admin_token"})
