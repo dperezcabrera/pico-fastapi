@@ -1,6 +1,9 @@
 """Unit tests for pico_fastapi middleware."""
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
+
 from pico_fastapi.middleware import (
     PicoScopeMiddleware,
     _cleanup_scope,
@@ -179,6 +182,7 @@ class TestPicoScopeMiddleware:
     @pytest.mark.asyncio
     async def test_cleanup_when_app_raises(self, mock_container):
         """Scope is cleaned up even when app raises exception."""
+
         async def failing_app(scope, receive, send):
             raise ValueError("App error")
 

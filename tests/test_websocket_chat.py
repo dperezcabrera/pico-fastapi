@@ -8,4 +8,3 @@ def test_websocket_echo(client):
         ws.send_text("ping")
         msg2 = ws.receive_text()
         assert "ping" in msg2
-

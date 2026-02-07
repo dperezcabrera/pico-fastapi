@@ -1,7 +1,10 @@
 """Unit tests for pico_fastapi config module."""
-import pytest
+
 from dataclasses import asdict
+
+import pytest
 from fastapi import FastAPI
+
 from pico_fastapi.config import FastApiConfigurer, FastApiSettings
 
 
@@ -63,12 +66,13 @@ class TestFastApiConfigurer:
 
     def test_is_runtime_checkable_protocol(self):
         """FastApiConfigurer is a runtime checkable protocol."""
-        from typing import runtime_checkable, Protocol
+        from typing import Protocol, runtime_checkable
 
         assert hasattr(FastApiConfigurer, "__protocol_attrs__")
 
     def test_default_priority_is_zero(self):
         """Default priority property returns 0."""
+
         # Create a concrete implementation
         class MyConfigurer(FastApiConfigurer):
             def configure(self, app: FastAPI) -> None:
@@ -79,6 +83,7 @@ class TestFastApiConfigurer:
 
     def test_instance_check_with_configure_method(self):
         """Objects with configure method pass isinstance check."""
+
         class ValidConfigurer:
             priority = 5
 
@@ -89,6 +94,7 @@ class TestFastApiConfigurer:
 
     def test_instance_check_fails_without_configure(self):
         """Objects without configure method fail isinstance check."""
+
         class InvalidConfigurer:
             priority = 5
 
@@ -96,6 +102,7 @@ class TestFastApiConfigurer:
 
     def test_custom_priority(self):
         """Configurers can define custom priority."""
+
         class HighPriorityConfigurer(FastApiConfigurer):
             priority = 100
 
@@ -107,6 +114,7 @@ class TestFastApiConfigurer:
 
     def test_negative_priority_for_outer_middleware(self):
         """Negative priority places configurer outside scope middleware."""
+
         class OuterConfigurer(FastApiConfigurer):
             priority = -10
 
@@ -122,6 +130,7 @@ class TestConfigurerOrdering:
 
     def test_sorting_by_priority(self):
         """Configurers can be sorted by priority."""
+
         class LowPriority:
             priority = -50
             name = "low"
@@ -142,6 +151,7 @@ class TestConfigurerOrdering:
 
     def test_inner_outer_separation(self):
         """Configurers can be separated into inner and outer groups."""
+
         class Outer1:
             priority = -50
 
@@ -164,6 +174,7 @@ class TestConfigurerOrdering:
 
     def test_sandwich_pattern_order(self):
         """Sandwich pattern: inner -> middleware -> outer."""
+
         class SessionMiddleware:  # Outer, priority -50
             priority = -50
             name = "session"

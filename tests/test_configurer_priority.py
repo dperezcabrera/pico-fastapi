@@ -1,11 +1,12 @@
 """Integration tests for configurer priority and sandwich pattern."""
+
 import pytest
 from fastapi import FastAPI
-from starlette.testclient import TestClient
+from pico_ioc import YamlTreeSource, component, configuration, init
 from starlette.middleware.sessions import SessionMiddleware
-from pico_ioc import init, component, configuration, YamlTreeSource
-from pico_fastapi import FastApiConfigurer, controller, get
+from starlette.testclient import TestClient
 
+from pico_fastapi import FastApiConfigurer, controller, get
 
 # Track middleware execution order
 middleware_order = []
@@ -29,6 +30,7 @@ class TrackingMiddleware:
 @component
 class InnerConfigurer1(FastApiConfigurer):
     """Applied before PicoScopeMiddleware (priority >= 0)."""
+
     priority = 10
 
     def configure(self, app: FastAPI) -> None:
@@ -38,6 +40,7 @@ class InnerConfigurer1(FastApiConfigurer):
 @component
 class InnerConfigurer2(FastApiConfigurer):
     """Applied before PicoScopeMiddleware (priority >= 0)."""
+
     priority = 5
 
     def configure(self, app: FastAPI) -> None:
@@ -47,6 +50,7 @@ class InnerConfigurer2(FastApiConfigurer):
 @component
 class OuterConfigurer1(FastApiConfigurer):
     """Applied after PicoScopeMiddleware (priority < 0)."""
+
     priority = -10
 
     def configure(self, app: FastAPI) -> None:
@@ -56,6 +60,7 @@ class OuterConfigurer1(FastApiConfigurer):
 @component
 class OuterConfigurer2(FastApiConfigurer):
     """Applied after PicoScopeMiddleware (priority < 0)."""
+
     priority = -20
 
     def configure(self, app: FastAPI) -> None:
@@ -75,9 +80,7 @@ def priority_app(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("cfg")
     cfg = tmp / "config.yml"
     cfg.write_text(
-        "fastapi:\n"
-        "  title: 'Priority Test API'\n"
-        "  version: '1.0.0'\n",
+        "fastapi:\n  title: 'Priority Test API'\n  version: '1.0.0'\n",
         encoding="utf-8",
     )
 

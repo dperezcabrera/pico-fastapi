@@ -2,22 +2,26 @@ import dataclasses
 import inspect
 import logging
 from contextlib import asynccontextmanager
-from typing import List, Any
-from fastapi import FastAPI, APIRouter, WebSocket
+from typing import Any, List
+
+from fastapi import APIRouter, FastAPI, WebSocket
+from pico_ioc import PicoContainer, component, configure, factory, provides
 from starlette.responses import JSONResponse, Response
-from pico_ioc import factory, provides, component, PicoContainer, configure
-from .config import FastApiSettings, FastApiConfigurer
-from .middleware import PicoScopeMiddleware
-from .decorators import PICO_ROUTE_KEY, PICO_CONTROLLER_META, IS_CONTROLLER_ATTR
+
+from .config import FastApiConfigurer, FastApiSettings
+from .decorators import IS_CONTROLLER_ATTR, PICO_CONTROLLER_META, PICO_ROUTE_KEY
 from .exceptions import NoControllersFoundError
+from .middleware import PicoScopeMiddleware
 
 logger = logging.getLogger(__name__)
+
 
 def _priority_of(obj: Any) -> int:
     try:
         return int(getattr(obj, "priority", 0))
     except Exception:
         return 0
+
 
 def _normalize_http_result(result: Any) -> Response:
     if isinstance(result, Response):
@@ -37,6 +41,7 @@ def _normalize_http_result(result: Any) -> Response:
 
     return JSONResponse(content=result)
 
+
 def _create_http_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
     async def http_route_handler(**kwargs):
         controller_instance = await container.aget(controller_cls)
@@ -45,9 +50,11 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
         if inspect.isawaitable(res):
             res = await res
         return _normalize_http_result(res)
+
     params = list(sig.parameters.values())[1:]
     http_route_handler.__signature__ = sig.replace(parameters=params)
     return http_route_handler
+
 
 def _create_websocket_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
     original_params = list(sig.parameters.values())[1:]
@@ -62,17 +69,22 @@ def _create_websocket_handler(container: PicoContainer, controller_cls: type, me
 
     if not ws_param_name:
         ws_param_name = "websocket"
-        logger.debug("No WebSocket-annotated parameter found in %s.%s, defaulting to 'websocket'", controller_cls.__name__, method_name)
+        logger.debug(
+            "No WebSocket-annotated parameter found in %s.%s, defaulting to 'websocket'",
+            controller_cls.__name__,
+            method_name,
+        )
 
     async def websocket_route_handler(websocket: WebSocket, **kwargs):
         controller_instance = await container.aget(controller_cls)
         method_to_call = getattr(controller_instance, method_name)
         kwargs[ws_param_name] = websocket
         await method_to_call(**kwargs)
-    
+
     ws_wrapper_param = inspect.Parameter("websocket", inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=WebSocket)
     websocket_route_handler.__signature__ = sig.replace(parameters=[ws_wrapper_param] + new_params)
     return websocket_route_handler
+
 
 def _find_controller_classes(container: PicoContainer) -> list[type]:
     """Find all classes marked with @controller in the container."""
@@ -80,8 +92,7 @@ def _find_controller_classes(container: PicoContainer) -> list[type]:
     if not locator:
         return []
     return [
-        key for key, _ in locator._metadata.items()
-        if isinstance(key, type) and getattr(key, IS_CONTROLLER_ATTR, False)
+        key for key, _ in locator._metadata.items() if isinstance(key, type) and getattr(key, IS_CONTROLLER_ATTR, False)
     ]
 
 
@@ -136,6 +147,7 @@ def register_controllers(app: FastAPI, container: PicoContainer):
         router = _create_router_for_controller(container, cls)
         app.include_router(router)
 
+
 def _validate_configurers(configurers: List[Any]) -> List[FastApiConfigurer]:
     """Validate and filter configurers, discarding invalid ones with a warning."""
     valid = []
@@ -163,11 +175,13 @@ def _apply_configurers(app: FastAPI, configurers: List[FastApiConfigurer]) -> No
 
 def _create_lifespan_manager(container: PicoContainer):
     """Create the lifespan context manager for cleanup."""
+
     @asynccontextmanager
     async def lifespan_manager(app_instance):
         yield
         await container.cleanup_all_async()
         container.shutdown()
+
     return lifespan_manager
 
 
@@ -189,6 +203,7 @@ class PicoLifespanConfigurer:
 
         register_controllers(app, container)
         app.router.lifespan_context = _create_lifespan_manager(container)
+
 
 @factory
 class FastApiAppFactory:

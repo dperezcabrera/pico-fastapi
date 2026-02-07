@@ -1,4 +1,5 @@
 """Tests for pico_fastapi module exports."""
+
 import pytest
 
 
@@ -8,21 +9,25 @@ class TestModuleExports:
     def test_fastapi_configurer_exported(self):
         """FastApiConfigurer is exported from main module."""
         from pico_fastapi import FastApiConfigurer
+
         assert FastApiConfigurer is not None
 
     def test_fastapi_settings_exported(self):
         """FastApiSettings is exported from main module."""
         from pico_fastapi import FastApiSettings
+
         assert FastApiSettings is not None
 
     def test_controller_decorator_exported(self):
         """controller decorator is exported from main module."""
         from pico_fastapi import controller
+
         assert callable(controller)
 
     def test_http_decorators_exported(self):
         """HTTP method decorators are exported from main module."""
-        from pico_fastapi import get, post, put, delete, patch
+        from pico_fastapi import delete, get, patch, post, put
+
         assert callable(get)
         assert callable(post)
         assert callable(put)
@@ -32,19 +37,22 @@ class TestModuleExports:
     def test_websocket_decorator_exported(self):
         """websocket decorator is exported from main module."""
         from pico_fastapi import websocket
+
         assert callable(websocket)
 
     def test_fastapi_app_factory_exported(self):
         """FastApiAppFactory is exported from main module."""
         from pico_fastapi import FastApiAppFactory
+
         assert FastApiAppFactory is not None
 
     def test_exceptions_exported(self):
         """Exception classes are exported from main module."""
         from pico_fastapi import (
-            PicoFastAPIError,
             NoControllersFoundError,
+            PicoFastAPIError,
         )
+
         assert issubclass(PicoFastAPIError, Exception)
         assert issubclass(NoControllersFoundError, PicoFastAPIError)
 
@@ -82,8 +90,8 @@ class TestImportPatterns:
         """Can import directly from submodules."""
         from pico_fastapi.config import FastApiConfigurer, FastApiSettings
         from pico_fastapi.decorators import controller, get, post
-        from pico_fastapi.factory import FastApiAppFactory
         from pico_fastapi.exceptions import PicoFastAPIError
+        from pico_fastapi.factory import FastApiAppFactory
         from pico_fastapi.middleware import PicoScopeMiddleware
 
         assert FastApiConfigurer is not None

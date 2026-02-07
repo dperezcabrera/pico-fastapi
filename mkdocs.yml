@@ -5,7 +5,7 @@ site_url: https://dperezcabrera.github.io/pico-fastapi/
 repo_name: dperezcabrera/pico-fastapi
 repo_url: https://github.com/dperezcabrera/pico-fastapi
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2025 Pico-FastAPI
+copyright: Copyright &copy; 2025–2026 Pico-FastAPI
 
 strict: true
 

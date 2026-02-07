@@ -1,8 +1,10 @@
 """Unit tests for pico_fastapi exceptions."""
+
 import pytest
+
 from pico_fastapi.exceptions import (
-    PicoFastAPIError,
     NoControllersFoundError,
+    PicoFastAPIError,
 )
 
 
