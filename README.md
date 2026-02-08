@@ -349,16 +349,23 @@ No global state and no implicit singletons.
 
 ---
 
-## 🤖 Claude Code Skills
+## Claude Code Skills
 
-This project includes pre-designed skills for [Claude Code](https://claude.ai/claude-code), enabling AI-assisted development with pico-fastapi patterns.
+Install [Claude Code](https://code.claude.com) skills for AI-assisted development with pico-fastapi:
 
-| Skill | Command | Description |
-|-------|---------|-------------|
-| **Pico FastAPI Endpoint** | `/pico-fastapi` | Creates endpoints with controller-based routing and DI |
-| **Pico Test Generator** | `/pico-tests` | Generates tests for pico-framework components |
+```bash
+curl -sL https://raw.githubusercontent.com/dperezcabrera/pico-skills/main/install.sh | bash -s -- fastapi
+```
 
-See [Skills documentation](docs/skills.md) for full details and installation instructions.
+| Command | Description |
+|---------|-------------|
+| `/add-controller` | Add FastAPI controllers with route decorators |
+| `/add-component` | Add components, factories, interceptors, settings |
+| `/add-tests` | Generate tests for pico-framework components |
+
+All skills: `curl -sL https://raw.githubusercontent.com/dperezcabrera/pico-skills/main/install.sh | bash`
+
+See [pico-skills](https://github.com/dperezcabrera/pico-skills) for details.
 
 ---
 
