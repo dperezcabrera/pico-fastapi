@@ -2,7 +2,7 @@
 
 import pytest
 from fastapi import FastAPI
-from pico_ioc import YamlTreeSource, component, configuration, init
+from pico_ioc import component
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.testclient import TestClient
 
@@ -75,26 +75,12 @@ class TestController:
 
 
 @pytest.fixture(scope="module")
-def priority_app(tmp_path_factory):
+def priority_app(make_fastapi_app):
     """Create app with multiple configurers at different priorities."""
-    tmp = tmp_path_factory.mktemp("cfg")
-    cfg = tmp / "config.yml"
-    cfg.write_text(
+    return make_fastapi_app(
         "fastapi:\n  title: 'Priority Test API'\n  version: '1.0.0'\n",
-        encoding="utf-8",
+        extra_modules=[__name__],
     )
-
-    config = configuration(YamlTreeSource(str(cfg)))
-    container = init(
-        modules=[
-            "pico_fastapi.config",
-            "pico_fastapi.factory",
-            __name__,
-        ],
-        config=config,
-    )
-
-    return container.get(FastAPI)
 
 
 @pytest.fixture

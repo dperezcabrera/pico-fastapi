@@ -162,29 +162,29 @@ class ChatController:
 
 
 @pytest.fixture(scope="session")
-def config_file(tmp_path_factory):
-    tmp = tmp_path_factory.mktemp("cfg")
-    cfg = tmp / "config.yml"
-    cfg.write_text(
-        "fastapi:\n  title: 'Integration Test API'\n  version: '9.9.9'\n  debug: true\n",
-        encoding="utf-8",
-    )
-    return cfg
+def make_fastapi_app(tmp_path_factory):
+    """Factory fixture for creating configured FastAPI apps."""
+
+    def _create(yaml_content: str, extra_modules: list[str] | None = None):
+        tmp = tmp_path_factory.mktemp("cfg")
+        cfg = tmp / "config.yml"
+        cfg.write_text(yaml_content, encoding="utf-8")
+        modules = ["pico_fastapi.config", "pico_fastapi.factory"]
+        if extra_modules:
+            modules.extend(extra_modules)
+        config = configuration(YamlTreeSource(str(cfg)))
+        container = init(modules=modules, config=config)
+        return container.get(FastAPI)
+
+    return _create
 
 
 @pytest.fixture(scope="session")
-def app(config_file):
-    cfg = configuration(YamlTreeSource(str(config_file)))
-    container = init(
-        modules=[
-            "pico_fastapi.config",
-            "pico_fastapi.factory",
-            __name__,
-        ],
-        config=cfg,
+def app(make_fastapi_app):
+    return make_fastapi_app(
+        "fastapi:\n  title: 'Integration Test API'\n  version: '9.9.9'\n  debug: true\n",
+        extra_modules=[__name__],
     )
-    application = container.get(FastAPI)
-    return application
 
 
 @pytest.fixture()
