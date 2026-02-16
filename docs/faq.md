@@ -331,19 +331,6 @@ def pytest_configure(config):
    ```
 3. Check for import errors in controller modules
 
-### InvalidConfigurerError
-
-**Cause:** A class registered as configurer doesn't implement `FastApiConfigurer.configure()`.
-
-**Solution:** Implement the `configure` method:
-
-```python
-@component
-class MyConfigurer(FastApiConfigurer):
-    def configure(self, app: FastAPI) -> None:  # Required!
-        pass
-```
-
 ### "Component not found" for controller dependency
 
 **Cause:** A dependency of your controller isn't registered.

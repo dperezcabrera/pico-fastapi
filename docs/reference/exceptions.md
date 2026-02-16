@@ -5,7 +5,6 @@ This reference documents the custom exception classes provided by the pico_fasta
 ## Overview
 
 - PicoFastAPIError is the common base class for all custom errors in pico_fastapi.
-- InvalidConfigurerError is raised when an object passed as a “configurer” is invalid (e.g., it does not implement the expected interface).
 - NoControllersFoundError is raised when the controller discovery process completes without finding any controllers.
 
 Catching the base class lets you handle all pico_fastapi-specific errors in one place. Catching the specific subclasses lets you handle configuration vs. discovery failures differently.
@@ -36,48 +35,6 @@ except PicoFastAPIError as exc:
     # Handle configuration or discovery errors uniformly
     logger.error(f"pico_fastapi startup failed: {exc}")
     raise
-```
-
-## InvalidConfigurerError
-
-Raised when an object provided to configure the application is invalid.
-
-Constructor signature:
-- InvalidConfigurerError(obj)
-
-The obj argument is the offending object. The exception message typically includes information about the object to aid debugging.
-
-When to raise:
-- If the configurer does not implement required methods or attributes.
-- If the configurer is of the wrong type.
-
-Example usage in an application bootstrap:
-
-```python
-from pico_fastapi.exceptions import InvalidConfigurerError
-
-def bootstrap(configurer):
-    # Validate expected interface
-    if not hasattr(configurer, "configure"):
-        raise InvalidConfigurerError(configurer)
-
-    # Optionally more checks, e.g., callable or type
-    if not callable(getattr(configurer, "configure", None)):
-        raise InvalidConfigurerError(configurer)
-
-    # Proceed with configuration
-    configurer.configure()
-```
-
-Example handling:
-
-```python
-try:
-    bootstrap(my_configurer)
-except InvalidConfigurerError as exc:
-    # Provide a user-friendly message or remediation
-    print(f"Invalid configurer: {exc}")
-    # Decide whether to recover or exit
 ```
 
 ## NoControllersFoundError

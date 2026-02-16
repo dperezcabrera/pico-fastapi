@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 ### Changed
 - Bumped `pico-ioc` dependency from `>= 2.1.3` to `>= 2.2.0`.
 - Dropped Python 3.10 from CI matrix, tox and Makefile (requires-python is `>=3.11`).
-- Changed `version_scheme` from `post-release` to `guess-next-dev` for clean release versions.
+- Reverted `version_scheme` to `post-release` (`guess-next-dev` caused `.dev0` versions to leak to PyPI).
 
 ---
 
