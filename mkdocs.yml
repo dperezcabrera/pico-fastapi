@@ -135,6 +135,9 @@ nav:
     - Session Shopping Cart: how-to/session-cart.md
     - Apply Settings: how-to/settings-applied.md
     - WebSocket Chat: how-to/websocket-chat.md
+    - CORS Middleware: how-to/cors.md
+    - WebSocket Controllers: how-to/websocket.md
+    - Testing Controllers: how-to/testing.md
   - Reference:
     - reference/index.md
     - Configuration: reference/config.md
@@ -143,4 +146,5 @@ nav:
   - Test Suite: explanation/test-suite.md
   - Claude Code Skills: skills.md
   - FAQ: faq.md
+  - Migration Guide: migration.md
   - Changelog: CHANGELOG.md

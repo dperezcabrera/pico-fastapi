@@ -1,30 +1,29 @@
 # Exceptions
 
-This reference documents the custom exception classes provided by the pico_fastapi project. These exceptions are used to signal failures in application configuration and in controller discovery, and they allow you to handle these conditions explicitly in your code.
+This reference documents the custom exception classes provided by pico-fastapi. These exceptions signal failures during application startup, and they allow you to handle these conditions explicitly in your code.
 
 ## Overview
 
-- PicoFastAPIError is the common base class for all custom errors in pico_fastapi.
-- NoControllersFoundError is raised when the controller discovery process completes without finding any controllers.
+- `PicoFastAPIError` is the common base class for all custom errors in pico-fastapi.
+- `NoControllersFoundError` is raised when the controller discovery process completes without finding any controllers.
 
-Catching the base class lets you handle all pico_fastapi-specific errors in one place. Catching the specific subclasses lets you handle configuration vs. discovery failures differently.
+Catching the base class lets you handle all pico-fastapi-specific errors in one place.
 
 Typical import:
 
 ```python
 from pico_fastapi.exceptions import (
     PicoFastAPIError,
-    InvalidConfigurerError,
     NoControllersFoundError,
 )
 ```
 
 ## PicoFastAPIError
 
-Base class for all pico_fastapi exceptions.
+Base class for all pico-fastapi exceptions.
 
-- Use this to catch any pico_fastapi-specific error without matching a concrete subclass.
-- When writing library or application code on top of pico_fastapi, prefer catching PicoFastAPIError instead of broad exceptions like Exception, to avoid masking unrelated errors.
+- Use this to catch any pico-fastapi-specific error without matching a concrete subclass.
+- When writing library or application code on top of pico-fastapi, prefer catching `PicoFastAPIError` instead of broad exceptions like `Exception`, to avoid masking unrelated errors.
 
 Example:
 
@@ -41,39 +40,35 @@ except PicoFastAPIError as exc:
 
 Raised when the system cannot find any controllers during discovery.
 
-Constructor signature:
-- NoControllersFoundError()
+**Exact message:**
+```
+No controllers were registered. Ensure your controller modules are scanned.
+```
 
-When to raise:
-- After scanning designated modules or packages for controllers and no eligible controllers are found.
+Constructor signature:
+- `NoControllersFoundError()` (takes no arguments)
+
+When raised:
+- By `register_controllers()` after scanning the container for controllers and finding none.
 
 Example usage during discovery:
 
 ```python
 from pico_fastapi.exceptions import NoControllersFoundError
 
-def discover_and_register_controllers(package: str):
-    controllers = discover_controllers(package=package)  # project-specific function
-    if not controllers:
-        raise NoControllersFoundError()
-
-    for controller in controllers:
-        register_controller(controller)
-```
-
-Example handling:
-
-```python
 try:
-    discover_and_register_controllers("app.controllers")
+    register_controllers(app, container)
 except NoControllersFoundError:
-    # Decide how to handle an empty application
     logger.warning("No controllers found; the API will expose no endpoints.")
-    # You may halt startup or continue with limited functionality
 ```
+
+## Removed Exceptions
+
+### InvalidConfigurerError (removed in v0.2.2)
+
+`InvalidConfigurerError` was removed in v0.2.2. Invalid configurers are now logged as a warning and silently discarded. See the [Migration Guide](../migration.md) for details.
 
 ## Recommendations
 
-- Prefer raising InvalidConfigurerError and NoControllersFoundError for configuration and discovery issues instead of generic errors like ValueError or RuntimeError. This makes error handling clearer and more robust.
-- Catch PicoFastAPIError at application boundaries (e.g., startup) to handle all pico_fastapi-specific failures in a single place.
+- Catch `PicoFastAPIError` at application boundaries (e.g., startup) to handle all pico-fastapi-specific failures in a single place.
 - Do not rely on the exact exception message in code paths; match on the exception class to make your code resilient to message changes.

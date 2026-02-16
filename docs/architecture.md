@@ -176,7 +176,114 @@ This guarantees all components supporting `async __aenter__/__aexit__` or `clean
 
 -----
 
-## 8\. Architectural Intent
+## 8\. Request Lifecycle Through Middleware and Controller
+
+The following diagram shows the full request path, including outer configurers (negative priority), PicoScopeMiddleware, and inner configurers (non-negative priority):
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Outer as Outer Middleware<br/>(priority < 0)
+    participant Scope as PicoScopeMiddleware
+    participant Inner as Inner Middleware<br/>(priority >= 0)
+    participant Handler as Controller Method
+
+    Client->>Outer: HTTP Request
+    activate Outer
+    Note over Outer: CORS, Session, Rate Limiting
+    Outer->>Scope: Forward
+    activate Scope
+    Scope->>Scope: Create request scope (uuid)
+    Scope->>Scope: Create session scope (if SessionMiddleware active)
+    Scope->>Inner: Forward (scopes active)
+    activate Inner
+    Note over Inner: Auth, Logging, Business hooks
+    Inner->>Handler: Route dispatch
+    activate Handler
+    Handler->>Handler: container.aget(ControllerClass)
+    Handler-->>Inner: Response / tuple / Pydantic model
+    deactivate Handler
+    Inner-->>Scope: Response
+    deactivate Inner
+    Scope->>Scope: Cleanup request scope
+    Scope-->>Outer: Response
+    deactivate Scope
+    Outer-->>Client: HTTP Response
+    deactivate Outer
+```
+
+-----
+
+## 9\. Configurer Priority Ordering
+
+Configurers are split into two groups relative to `PicoScopeMiddleware`.  Within each group, lower priority numbers execute first:
+
+```mermaid
+graph TB
+    subgraph Outer ["Outer Configurers (priority < 0)"]
+        direction TB
+        O1["priority = -100<br/>e.g. CORS"]
+        O2["priority = -50<br/>e.g. Session"]
+        O3["priority = -10<br/>e.g. Rate Limiting"]
+        O1 --> O2 --> O3
+    end
+
+    SM[PicoScopeMiddleware<br/>request / session / websocket scopes]
+
+    subgraph Inner ["Inner Configurers (priority >= 0)"]
+        direction TB
+        I1["priority = 0<br/>e.g. Health routes"]
+        I2["priority = 10<br/>e.g. Auth"]
+        I3["priority = 50<br/>e.g. Audit logging"]
+        I1 --> I2 --> I3
+    end
+
+    Outer --> SM --> Inner
+```
+
+Key rules:
+
+- **Negative priority** = outer = applied **before** `PicoScopeMiddleware`
+- **Non-negative priority** = inner = applied **after** `PicoScopeMiddleware`
+- Outer middleware cannot access request-scoped services (scopes are not yet active)
+- Inner middleware can access request-scoped services
+
+-----
+
+## 10\. Scope Lifecycle
+
+Each scope type has a distinct lifecycle managed by `PicoScopeMiddleware`:
+
+```mermaid
+stateDiagram-v2
+    state "HTTP Request" as http {
+        [*] --> RequestScope: New UUID created
+        RequestScope --> SessionScope: If SessionMiddleware active
+        SessionScope --> Active: Both scopes active
+        RequestScope --> Active: No session
+        Active --> Cleanup: Response sent
+        Cleanup --> [*]: Scope destroyed
+    }
+
+    state "WebSocket Connection" as ws {
+        [*] --> WebSocketScope: New UUID created
+        WebSocketScope --> Connected: ws.accept()
+        Connected --> Connected: send / receive messages
+        Connected --> Cleanup2: Connection closed
+        Cleanup2 --> [*]: Scope destroyed
+    }
+```
+
+| Scope | Created | Destroyed | Typical Duration |
+|-------|---------|-----------|------------------|
+| `request` | On HTTP request arrival | After response is sent | Milliseconds |
+| `session` | On first request with session cookie | When session expires or is cleared | Minutes to hours |
+| `websocket` | On WebSocket CONNECT | On WebSocket DISCONNECT | Seconds to hours |
+| `singleton` | On container initialization | On container shutdown | Application lifetime |
+
+-----
+
+## 11\. Architectural Intent
 
 **pico-fastapi exists to:**
 

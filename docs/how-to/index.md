@@ -9,6 +9,9 @@ Practical step-by-step guides for common tasks with pico-fastapi.
 | [Session Shopping Cart](./session-cart.md) | Implement session-scoped state with a shopping cart |
 | [Apply Settings](./settings-applied.md) | Configure FastAPI app from YAML/environment |
 | [WebSocket Chat](./websocket-chat.md) | Build a real-time chat with WebSocket support |
+| [CORS Middleware](./cors.md) | Add CORS middleware using FastApiConfigurer |
+| [WebSocket Controllers](./websocket.md) | Create WebSocket controllers with proper scope |
+| [Testing Controllers](./testing.md) | Test controllers with TestClient, mocks, and overrides |
 
 ## Quick Reference
 
