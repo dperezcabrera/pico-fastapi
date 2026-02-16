@@ -29,7 +29,6 @@ Complete reference documentation for pico-fastapi's public API.
 | Exception | Description |
 |-----------|-------------|
 | `PicoFastAPIError` | Base exception for all pico-fastapi errors |
-| `InvalidConfigurerError` | Raised when a configurer doesn't implement the protocol |
 | `NoControllersFoundError` | Raised when no controllers are found during startup |
 
 ---
@@ -282,31 +281,6 @@ try:
     # pico-fastapi operations
 except PicoFastAPIError as e:
     # Handle any pico-fastapi error
-```
-
----
-
-### InvalidConfigurerError
-
-Raised when an object registered as a configurer doesn't implement the required protocol.
-
-```python
-class InvalidConfigurerError(PicoFastAPIError):
-    def __init__(self, obj: object):
-        super().__init__(
-            f"Object does not implement FastApiConfigurer.configure(app): {obj!r}"
-        )
-```
-
-**Cause:** A class is registered as a `FastApiConfigurer` but doesn't have a `configure(app)` method.
-
-**Solution:** Implement the `configure` method:
-
-```python
-@component
-class MyConfigurer(FastApiConfigurer):
-    def configure(self, app: FastAPI) -> None:
-        pass  # Add your configuration
 ```
 
 ---

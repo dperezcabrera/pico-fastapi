@@ -110,16 +110,11 @@ You will see the automatically generated Swagger UI with your `/greet/{name}` en
 
 # 📎 Classic Version (Without pico-boot)
 
-If you want the version that uses **only `pico_ioc.init()`**,
-you can find it here:
-
-👉 **Classic Tutorial (init + manual module declaration)**
-[https://github.com/dperezcabrera/pico-fastapi/blob/main/docs/tutorial-classic.md](https://github.com/dperezcabrera/pico-fastapi/blob/main/docs/tutorial-classic.md)
-*(or wherever you want to place it; I can generate the file for you)*
-
-The only change in the classic version is:
+If you are not using `pico-boot`, use `pico_ioc.init()` directly and include `"pico_fastapi"` in the modules list:
 
 ```python
+from pico_ioc import init
+
 container = init(
     modules=[
         "controllers",
@@ -128,5 +123,3 @@ container = init(
     ]
 )
 ```
-
-
