@@ -1,3 +1,10 @@
+"""Application factory and startup wiring for pico-fastapi.
+
+Contains :class:`FastApiAppFactory` (creates the ``FastAPI`` singleton),
+:class:`PicoLifespanConfigurer` (applies configurers, registers controllers,
+and attaches scope middleware), and the ``register_controllers()`` function.
+"""
+
 import dataclasses
 import inspect
 import logging
@@ -17,6 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 def _priority_of(obj: Any) -> int:
+    """Extract the integer priority from a configurer, defaulting to 0.
+
+    Args:
+        obj: An object expected to have a ``priority`` attribute.
+
+    Returns:
+        The integer priority, or ``0`` if the attribute is missing or
+        cannot be converted.
+    """
     try:
         return int(getattr(obj, "priority", 0))
     except Exception:
@@ -24,6 +40,22 @@ def _priority_of(obj: Any) -> int:
 
 
 def _normalize_http_result(result: Any) -> Response:
+    """Convert a controller return value into a Starlette ``Response``.
+
+    Supports the following return conventions:
+
+    - A ``Response`` instance is returned as-is.
+    - A ``(content, status_code)`` or ``(content, status_code, headers)``
+      tuple is converted to a ``JSONResponse``.
+    - Any other value (including Pydantic models) is serialized as JSON
+      with status 200.
+
+    Args:
+        result: The value returned by a controller method.
+
+    Returns:
+        A Starlette ``Response`` suitable for the ASGI pipeline.
+    """
     if isinstance(result, Response):
         return result
 
@@ -43,6 +75,23 @@ def _normalize_http_result(result: Any) -> Response:
 
 
 def _create_http_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
+    """Create an async HTTP route handler that resolves the controller via DI.
+
+    The handler fetches a fresh controller instance from the container on
+    every request, calls the named method, and normalizes the result into
+    a ``Response``.
+
+    Args:
+        container: The pico-ioc container.
+        controller_cls: The controller class to resolve.
+        method_name: The name of the method to invoke.
+        sig: The method's ``inspect.Signature`` (used to build the
+            wrapper's signature, excluding ``self``).
+
+    Returns:
+        An async function suitable for ``APIRouter.add_api_route()``.
+    """
+
     async def http_route_handler(**kwargs):
         controller_instance = await container.aget(controller_cls)
         method_to_call = getattr(controller_instance, method_name)
@@ -57,6 +106,22 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
 
 
 def _create_websocket_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
+    """Create an async WebSocket route handler that resolves the controller via DI.
+
+    The handler detects the WebSocket parameter by its type annotation
+    (``WebSocket``), not by name, allowing any parameter name
+    (e.g. ``ws``, ``socket``).
+
+    Args:
+        container: The pico-ioc container.
+        controller_cls: The controller class to resolve.
+        method_name: The name of the WebSocket method to invoke.
+        sig: The method's ``inspect.Signature``.
+
+    Returns:
+        An async function suitable for
+        ``APIRouter.add_api_websocket_route()``.
+    """
     original_params = list(sig.parameters.values())[1:]
     ws_param_name = None
     new_params = []
@@ -87,7 +152,17 @@ def _create_websocket_handler(container: PicoContainer, controller_cls: type, me
 
 
 def _find_controller_classes(container: PicoContainer) -> list[type]:
-    """Find all classes marked with @controller in the container."""
+    """Find all classes marked with ``@controller`` in the container.
+
+    Inspects the container's internal locator metadata to discover
+    registered controller components.
+
+    Args:
+        container: The pico-ioc container to search.
+
+    Returns:
+        A list of controller classes found in the container.
+    """
     locator = getattr(container, "_locator", None)
     if not locator:
         return []
@@ -97,7 +172,17 @@ def _find_controller_classes(container: PicoContainer) -> list[type]:
 
 
 def _register_route(router: APIRouter, container: PicoContainer, cls: type, name: str, method, route_info: dict):
-    """Register a single route on the router."""
+    """Register a single route on the router.
+
+    Args:
+        router: The ``APIRouter`` to add the route to.
+        container: The pico-ioc container for DI resolution.
+        cls: The controller class owning the method.
+        name: The method name.
+        method: The unbound method object.
+        route_info: A :class:`RouteInfo` dict with ``method``, ``path``,
+            and ``kwargs``.
+    """
     sig = inspect.signature(method)
     method_type = route_info["method"]
 
@@ -119,7 +204,18 @@ def _register_route(router: APIRouter, container: PicoContainer, cls: type, name
 
 
 def _create_router_for_controller(container: PicoContainer, cls: type) -> APIRouter:
-    """Create and configure a router for a controller class."""
+    """Create and configure an ``APIRouter`` for a controller class.
+
+    Reads controller metadata (prefix, tags, dependencies, responses)
+    from the class and registers all decorated methods as routes.
+
+    Args:
+        container: The pico-ioc container.
+        cls: The controller class.
+
+    Returns:
+        A configured ``APIRouter`` with all the controller's routes.
+    """
     meta = getattr(cls, PICO_CONTROLLER_META, {}) or {}
     router = APIRouter(
         prefix=meta.get("prefix", ""),
@@ -137,7 +233,19 @@ def _create_router_for_controller(container: PicoContainer, cls: type) -> APIRou
 
 
 def register_controllers(app: FastAPI, container: PicoContainer):
-    """Register all controllers with the FastAPI app."""
+    """Discover and register all ``@controller`` classes with the FastAPI app.
+
+    Iterates over all controller classes found in the container's metadata,
+    creates an ``APIRouter`` for each, and includes them in the app.
+
+    Args:
+        app: The FastAPI application instance.
+        container: The pico-ioc container holding controller registrations.
+
+    Raises:
+        NoControllersFoundError: If no ``@controller``-decorated classes
+            are found in the container.
+    """
     controller_classes = _find_controller_classes(container)
 
     if not controller_classes:
@@ -149,7 +257,19 @@ def register_controllers(app: FastAPI, container: PicoContainer):
 
 
 def _validate_configurers(configurers: List[Any]) -> List[FastApiConfigurer]:
-    """Validate and filter configurers, discarding invalid ones with a warning."""
+    """Validate and filter configurers, discarding invalid ones with a warning.
+
+    Each configurer is checked against the ``FastApiConfigurer`` protocol.
+    Objects that do not satisfy the protocol are logged at WARNING level
+    and excluded.
+
+    Args:
+        configurers: A list of candidate configurer objects.
+
+    Returns:
+        A filtered list containing only valid ``FastApiConfigurer``
+        instances.
+    """
     valid = []
     for c in configurers:
         if isinstance(c, FastApiConfigurer) and callable(getattr(c, "configure", None)):
@@ -160,7 +280,16 @@ def _validate_configurers(configurers: List[Any]) -> List[FastApiConfigurer]:
 
 
 def _split_configurers_by_priority(configurers: List[FastApiConfigurer]) -> tuple[list, list]:
-    """Split configurers into inner (>=0) and outer (<0) by priority."""
+    """Split configurers into inner (>= 0) and outer (< 0) groups by priority.
+
+    Args:
+        configurers: A list of validated configurers.
+
+    Returns:
+        A ``(inner, outer)`` tuple where *inner* configurers have
+        ``priority >= 0`` and *outer* configurers have ``priority < 0``.
+        Each group is sorted by ascending priority.
+    """
     sorted_conf = sorted(configurers, key=_priority_of)
     inner = [c for c in sorted_conf if _priority_of(c) >= 0]
     outer = [c for c in sorted_conf if _priority_of(c) < 0]
@@ -168,13 +297,29 @@ def _split_configurers_by_priority(configurers: List[FastApiConfigurer]) -> tupl
 
 
 def _apply_configurers(app: FastAPI, configurers: List[FastApiConfigurer]) -> None:
-    """Apply a list of configurers to the app."""
+    """Apply a list of configurers to the app.
+
+    Args:
+        app: The FastAPI application instance.
+        configurers: Configurers to apply, in order.
+    """
     for configurer in configurers:
         configurer.configure(app)
 
 
 def _create_lifespan_manager(container: PicoContainer):
-    """Create the lifespan context manager for cleanup."""
+    """Create the lifespan context manager for graceful shutdown.
+
+    The returned context manager performs async cleanup of all container
+    resources and then shuts down the container when the application
+    stops.
+
+    Args:
+        container: The pico-ioc container to manage.
+
+    Returns:
+        An async context manager suitable for ``app.router.lifespan_context``.
+    """
 
     @asynccontextmanager
     async def lifespan_manager(app_instance):
@@ -187,6 +332,19 @@ def _create_lifespan_manager(container: PicoContainer):
 
 @component
 class PicoLifespanConfigurer:
+    """Startup hook that wires FastAPI with pico-ioc at application boot.
+
+    This component is auto-discovered by pico-ioc and runs during
+    container configuration.  It performs the following steps in order:
+
+    1. Validates and splits configurers by priority.
+    2. Applies *inner* configurers (``priority >= 0``).
+    3. Adds ``PicoScopeMiddleware``.
+    4. Applies *outer* configurers (``priority < 0``).
+    5. Registers all ``@controller`` routes.
+    6. Attaches the lifespan manager for graceful shutdown.
+    """
+
     @configure
     def setup_fastapi(
         self,
@@ -194,6 +352,13 @@ class PicoLifespanConfigurer:
         app: FastAPI,
         configurers: List[FastApiConfigurer],
     ) -> None:
+        """Wire the FastAPI app with middleware, controllers, and lifespan.
+
+        Args:
+            container: The pico-ioc container.
+            app: The FastAPI application instance.
+            configurers: All discovered ``FastApiConfigurer`` implementations.
+        """
         valid_configurers = _validate_configurers(configurers)
         inner, outer = _split_configurers_by_priority(valid_configurers)
 
@@ -207,9 +372,34 @@ class PicoLifespanConfigurer:
 
 @factory
 class FastApiAppFactory:
+    """Factory that creates the ``FastAPI`` application as a singleton.
+
+    Reads :class:`FastApiSettings` (populated from configuration sources)
+    and passes its fields as keyword arguments to the ``FastAPI()``
+    constructor.  The resulting app is registered in the container with
+    ``scope="singleton"``.
+
+    Example:
+        .. code-block:: python
+
+            from fastapi import FastAPI
+            from pico_boot import init
+
+            container = init(modules=["myapp"])
+            app = container.get(FastAPI)  # Created by FastApiAppFactory
+    """
+
     @provides(FastAPI, scope="singleton")
     def create_fastapi_app(
         self,
         settings: FastApiSettings,
     ) -> FastAPI:
+        """Create a FastAPI instance from the provided settings.
+
+        Args:
+            settings: Application settings (title, version, debug).
+
+        Returns:
+            A configured ``FastAPI`` application instance.
+        """
         return FastAPI(**dataclasses.asdict(settings))

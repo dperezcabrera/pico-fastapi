@@ -168,7 +168,19 @@ Priority determines when your middleware runs relative to `PicoScopeMiddleware`:
 
 ```
 Request Flow:
-[Outer: priority < 0] → [PicoScopeMiddleware] → [Inner: priority >= 0] → Handler
+[Outer: priority < 0] --> [PicoScopeMiddleware] --> [Inner: priority >= 0] --> Handler
+```
+
+```mermaid
+graph LR
+    A[Request] --> B["Outer Configurers<br/>priority < 0"]
+    B --> C[PicoScopeMiddleware]
+    C --> D["Inner Configurers<br/>priority >= 0"]
+    D --> E[Controller Handler]
+    E --> D
+    D --> C
+    C --> B
+    B --> F[Response]
 ```
 
 ### When should I use negative vs positive priority?
@@ -205,6 +217,13 @@ Check these common issues:
 
        def configure(self, app: FastAPI) -> None:  # Required!
            pass
+   ```
+
+4. **Invalid configurer discarded silently:**
+   Since v0.2.2, invalid configurers are logged as a warning and discarded
+   rather than raising an error. Check your logs for:
+   ```
+   WARNING - Discarding invalid configurer <...>: does not implement FastApiConfigurer protocol
    ```
 
 ---
@@ -316,30 +335,102 @@ def pytest_configure(config):
 
 ---
 
-## Errors
+## Errors and Troubleshooting
 
 ### NoControllersFoundError
 
-**Cause:** No `@controller` decorated classes were found.
+**Exact message:**
+```
+No controllers were registered. Ensure your controller modules are scanned.
+```
 
-**Solutions:**
+**Type:** `pico_fastapi.exceptions.NoControllersFoundError` (subclass of `PicoFastAPIError`)
 
-1. Ensure controllers have the `@controller` decorator
+**Cause:** The `register_controllers()` function found no classes with the `@controller` decorator in the pico-ioc container.
+
+**Fix:**
+
+1. Ensure controllers have the `@controller` decorator:
+   ```python
+   from pico_fastapi import controller
+
+   @controller(prefix="/api")  # This is required
+   class MyController:
+       pass
+   ```
+
 2. Include controller modules in `init()`:
    ```python
    container = init(modules=["myapp.controllers"])
    ```
-3. Check for import errors in controller modules
+
+3. Check for import errors in controller modules (a silent `ImportError` prevents registration).
+
+---
+
+### "Discarding invalid configurer" warning
+
+**Exact log message:**
+```
+WARNING - Discarding invalid configurer <...>: does not implement FastApiConfigurer protocol
+```
+
+**Cause:** A component was provided as a configurer but does not satisfy the `FastApiConfigurer` runtime-checkable protocol (missing `configure()` method or not an instance of the protocol).
+
+**Fix:**
+
+1. Ensure your configurer class implements the protocol:
+   ```python
+   from pico_fastapi import FastApiConfigurer
+
+   @component
+   class MyConfigurer(FastApiConfigurer):
+       priority = 0
+
+       def configure(self, app: FastAPI) -> None:  # Must exist
+           pass
+   ```
+
+2. Check that `configure` is a callable method, not a property or attribute.
+
+---
 
 ### "Component not found" for controller dependency
 
-**Cause:** A dependency of your controller isn't registered.
+**Cause:** A dependency declared in a controller's `__init__` is not registered in the container.
 
-**Solutions:**
+**Fix:**
 
-1. Add `@component` to the dependency class
-2. Include the dependency's module in `init()`
-3. Check for typos in type hints
+1. Add `@component` to the dependency class:
+   ```python
+   @component
+   class UserService:
+       pass
+   ```
+
+2. Include the dependency's module in `init()`.
+
+3. Check for typos in type hints -- the type hint must exactly match the registered class.
+
+---
+
+### "No WebSocket-annotated parameter found" debug log
+
+**Exact log message:**
+```
+DEBUG - No WebSocket-annotated parameter found in <Class>.<method>, defaulting to 'websocket'
+```
+
+**Cause:** A WebSocket handler method has no parameter with a `WebSocket` type annotation.
+
+**Fix:** Add the annotation explicitly:
+```python
+from fastapi import WebSocket
+
+@websocket("/ws")
+async def handle(self, ws: WebSocket):  # Add `: WebSocket`
+    await ws.accept()
+```
 
 ---
 
