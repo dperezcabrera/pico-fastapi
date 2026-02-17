@@ -54,7 +54,7 @@ FastAPI’s built-in dependency system is function-based, which often ties busin
 
 ```bash
 pip install pico-fastapi
-````
+```
 
 ---
 

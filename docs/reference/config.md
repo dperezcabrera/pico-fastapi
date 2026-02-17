@@ -115,3 +115,9 @@ Summary:
 - FastApiSettings provides injectable core settings for FastAPI instantiation via `@configured`.
 - FastApiConfigurer defines a simple contract for modular, ordered app configuration.
 - Register configurers as `@component` classes; pico-ioc discovers and applies them automatically.
+
+---
+
+## Auto-generated API
+
+::: pico_fastapi.config
