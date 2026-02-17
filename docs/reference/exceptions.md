@@ -72,3 +72,9 @@ except NoControllersFoundError:
 
 - Catch `PicoFastAPIError` at application boundaries (e.g., startup) to handle all pico-fastapi-specific failures in a single place.
 - Do not rely on the exact exception message in code paths; match on the exception class to make your code resilient to message changes.
+
+---
+
+## Auto-generated API
+
+::: pico_fastapi.exceptions

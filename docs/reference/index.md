@@ -305,3 +305,9 @@ class NoControllersFoundError(PicoFastAPIError):
 1. Add `@controller` decorator to your controller classes
 2. Include controller modules in `init(modules=[...])`
 3. Check for import errors in controller modules
+
+---
+
+## Auto-generated API
+
+::: pico_fastapi

@@ -1,0 +1,6 @@
+fastapi:
+  title: Greeting API
+  version: 1.0.0
+
+greeting:
+  default_language: en
