@@ -156,7 +156,7 @@ nav:
     - Exceptions: reference/exceptions.md
   - Architecture: architecture.md
   - Test Suite: explanation/test-suite.md
-  - Claude Code Skills: skills.md
+  - AI Coding Skills: skills.md
   - FAQ: faq.md
   - Migration Guide: migration.md
   - Changelog: CHANGELOG.md
