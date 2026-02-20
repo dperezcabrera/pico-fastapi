@@ -129,7 +129,7 @@ from fastapi import FastAPI
 class CORSConfigurer(FastApiConfigurer):
     priority = -100  # Negative = outer middleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         from fastapi.middleware.cors import CORSMiddleware
         app.add_middleware(
             CORSMiddleware,

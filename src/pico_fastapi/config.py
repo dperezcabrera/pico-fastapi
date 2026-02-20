@@ -44,7 +44,7 @@ class FastApiConfigurer(Protocol):
             class CORSConfigurer(FastApiConfigurer):
                 priority = -100
 
-                def configure(self, app: FastAPI) -> None:
+                def configure_app(self, app: FastAPI) -> None:
                     from fastapi.middleware.cors import CORSMiddleware
                     app.add_middleware(
                         CORSMiddleware,
@@ -56,7 +56,7 @@ class FastApiConfigurer(Protocol):
     def priority(self) -> int:
         return 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         """Apply configuration to the FastAPI application.
 
         Args:

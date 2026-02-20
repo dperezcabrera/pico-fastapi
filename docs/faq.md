@@ -155,7 +155,7 @@ from pico_ioc import component
 class MyConfigurer(FastApiConfigurer):
     priority = 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(MyMiddleware)
 ```
 
@@ -215,7 +215,7 @@ Check these common issues:
    class MyConfigurer(FastApiConfigurer):
        # priority = 0  # Optional but recommended
 
-       def configure(self, app: FastAPI) -> None:  # Required!
+       def configure_app(self, app: FastAPI) -> None:  # Required!
            pass
    ```
 
@@ -252,7 +252,7 @@ from pico_ioc import component
 class SessionConfigurer(FastApiConfigurer):
     priority = -50  # Must be outer (before PicoScopeMiddleware)
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             SessionMiddleware,
             secret_key="your-secret-key",
@@ -382,7 +382,7 @@ No controllers were registered. Ensure your controller modules are scanned.
 WARNING - Discarding invalid configurer <...>: does not implement FastApiConfigurer protocol
 ```
 
-**Cause:** A component was provided as a configurer but does not satisfy the `FastApiConfigurer` runtime-checkable protocol (missing `configure()` method or not an instance of the protocol).
+**Cause:** A component was provided as a configurer but does not satisfy the `FastApiConfigurer` runtime-checkable protocol (missing `configure_app()` method or not an instance of the protocol).
 
 **Fix:**
 
@@ -394,11 +394,11 @@ WARNING - Discarding invalid configurer <...>: does not implement FastApiConfigu
    class MyConfigurer(FastApiConfigurer):
        priority = 0
 
-       def configure(self, app: FastAPI) -> None:  # Must exist
+       def configure_app(self, app: FastAPI) -> None:  # Must exist
            pass
    ```
 
-2. Check that `configure` is a callable method, not a property or attribute.
+2. Check that `configure_app` is a callable method, not a property or attribute.
 
 ---
 
@@ -489,7 +489,7 @@ from pico_ioc import component
 class StaticConfigurer(FastApiConfigurer):
     priority = -100
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.mount("/static", StaticFiles(directory="static"), name="static")
 ```
 

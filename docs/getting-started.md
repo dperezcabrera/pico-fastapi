@@ -237,7 +237,7 @@ from fastapi.middleware.cors import CORSMiddleware
 class CORSConfigurer(FastApiConfigurer):
     priority = -100  # Outer middleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=["http://localhost:3000"],
@@ -274,7 +274,7 @@ class AuthConfigurer(FastApiConfigurer):
     def __init__(self, container: PicoContainer):
         self.container = container
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(AuthMiddleware, container=self.container)
 ```
 

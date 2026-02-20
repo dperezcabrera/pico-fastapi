@@ -212,19 +212,19 @@ class TestPicoLifespanConfigurer:
         class LowPriority(FastApiConfigurer):
             priority = -10
 
-            def configure(self, app):
+            def configure_app(self, app):
                 app._configured_order.append("low")
 
         class HighPriority(FastApiConfigurer):
             priority = 10
 
-            def configure(self, app):
+            def configure_app(self, app):
                 app._configured_order.append("high")
 
         class MidPriority(FastApiConfigurer):
             priority = 0
 
-            def configure(self, app):
+            def configure_app(self, app):
                 app._configured_order.append("mid")
 
         app = FastAPI()
@@ -301,7 +301,7 @@ class TestValidateConfigurers:
         class ValidConfigurer(FastApiConfigurer):
             priority = 0
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         class InvalidThing:
@@ -328,19 +328,19 @@ class TestSplitConfigurersByPriority:
         class Inner(FastApiConfigurer):
             priority = 10
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         class Outer(FastApiConfigurer):
             priority = -10
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         class Zero(FastApiConfigurer):
             priority = 0
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         configurers = [Inner(), Outer(), Zero()]
@@ -355,13 +355,13 @@ class TestSplitConfigurersByPriority:
         class A(FastApiConfigurer):
             priority = 20
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         class B(FastApiConfigurer):
             priority = 5
 
-            def configure(self, app):
+            def configure_app(self, app):
                 pass
 
         configurers = [A(), B()]
@@ -376,20 +376,20 @@ class TestApplyConfigurers:
     """Tests for _apply_configurers helper function."""
 
     def test_calls_configure_on_each(self):
-        """Calls configure(app) on each configurer."""
+        """Calls configure_app(app) on each configurer."""
         app = FastAPI()
         app.called = []
 
         class Conf1(FastApiConfigurer):
             priority = 0
 
-            def configure(self, app):
+            def configure_app(self, app):
                 app.called.append("conf1")
 
         class Conf2(FastApiConfigurer):
             priority = 0
 
-            def configure(self, app):
+            def configure_app(self, app):
                 app.called.append("conf2")
 
         configurers = [Conf1(), Conf2()]

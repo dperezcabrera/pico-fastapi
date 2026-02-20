@@ -15,7 +15,7 @@ class FastApiConfigurer(Protocol):
     def priority(self) -> int:
         return 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         ...
 ```
 
@@ -30,7 +30,7 @@ from fastapi import FastAPI
 class MyConfigurer(FastApiConfigurer):
     priority = 0  # Default
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         # Add middleware, routes, event handlers, etc.
         app.add_middleware(MyMiddleware)
 ```
@@ -97,7 +97,7 @@ from pico_fastapi import FastApiConfigurer
 class CORSConfigurer(FastApiConfigurer):
     priority = -100  # Very outer
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=["http://localhost:3000"],
@@ -130,7 +130,7 @@ class SessionConfigurer(FastApiConfigurer):
     def __init__(self, settings: SessionSettings):
         self.settings = settings
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             SessionMiddleware,
             secret_key=self.settings.secret_key,
@@ -175,7 +175,7 @@ class AuthConfigurer(FastApiConfigurer):
     def __init__(self, container: PicoContainer):
         self.container = container
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(AuthMiddleware, container=self.container)
 ```
 
@@ -200,7 +200,7 @@ class StaticFilesConfigurer(FastApiConfigurer):
     def __init__(self, settings: StaticSettings):
         self.settings = settings
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.mount(
             self.settings.path,
             StaticFiles(directory=self.settings.directory),
@@ -220,7 +220,7 @@ from pico_fastapi import FastApiConfigurer
 class ErrorHandlerConfigurer(FastApiConfigurer):
     priority = 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         @app.exception_handler(ValueError)
         async def value_error_handler(request: Request, exc: ValueError):
             return JSONResponse(
@@ -246,7 +246,7 @@ from pico_fastapi import FastApiConfigurer
 class EventConfigurer(FastApiConfigurer):
     priority = 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         @app.on_event("startup")
         async def on_startup():
             print("Application starting...")
@@ -278,7 +278,7 @@ class MetricsConfigurer(FastApiConfigurer):
         self.settings = settings
         self.metrics_service = metrics_service
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         # Use injected dependencies
         if self.settings.enabled:
             app.add_middleware(

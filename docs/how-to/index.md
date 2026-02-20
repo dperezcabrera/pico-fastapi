@@ -27,7 +27,7 @@ from fastapi import FastAPI
 class MyMiddlewareConfigurer(FastApiConfigurer):
     priority = -10  # Negative = outer middleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(MyMiddleware)
 ```
 

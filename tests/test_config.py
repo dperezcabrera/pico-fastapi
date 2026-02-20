@@ -74,7 +74,7 @@ class TestFastApiConfigurer:
 
         # Create a concrete implementation
         class MyConfigurer(FastApiConfigurer):
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         configurer = MyConfigurer()
@@ -86,7 +86,7 @@ class TestFastApiConfigurer:
         class ValidConfigurer:
             priority = 5
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         assert isinstance(ValidConfigurer(), FastApiConfigurer)
@@ -105,7 +105,7 @@ class TestFastApiConfigurer:
         class HighPriorityConfigurer(FastApiConfigurer):
             priority = 100
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         configurer = HighPriorityConfigurer()
@@ -117,7 +117,7 @@ class TestFastApiConfigurer:
         class OuterConfigurer(FastApiConfigurer):
             priority = -10
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         configurer = OuterConfigurer()
