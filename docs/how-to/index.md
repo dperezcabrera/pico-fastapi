@@ -6,6 +6,7 @@ Practical step-by-step guides for common tasks with pico-fastapi.
 
 | Guide | Description |
 |-------|-------------|
+| [Migrating from FastAPI](./migrating-from-fastapi.md) | Coming from vanilla FastAPI? Depends() to constructors, routers to controllers |
 | [Session Shopping Cart](./session-cart.md) | Implement session-scoped state with a shopping cart |
 | [Apply Settings](./settings-applied.md) | Configure FastAPI app from YAML/environment |
 | [WebSocket Chat](./websocket-chat.md) | Build a real-time chat with WebSocket support |
