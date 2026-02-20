@@ -337,6 +337,13 @@ def pytest_configure(config):
 
 ## Errors and Troubleshooting
 
+For a complete decision-tree guide covering controllers, configurers,
+scopes, and middleware ordering, see [Troubleshooting](./troubleshooting.md).
+
+For component-level issues (missing components, circular dependencies,
+plugin discovery), see the
+[unified pico-boot troubleshooting guide](https://github.com/dperezcabrera/pico-boot/blob/main/docs/troubleshooting.md).
+
 ### NoControllersFoundError
 
 **Exact message:**

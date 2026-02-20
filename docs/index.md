@@ -67,11 +67,13 @@ app = container.get(FastAPI)
 |---|---------|-------------|------|
 | 1 | **Getting Started** | 5-minute tutorial | [getting-started.md](./getting-started.md) |
 | 2 | **Tutorial** | Step-by-step guide | [tutorial.md](./tutorial.md) |
-| 3 | **User Guide** | Core concepts and patterns | [user-guide/](./user-guide/index.md) |
-| 4 | **How-To Guides** | Practical examples | [how-to/](./how-to/index.md) |
-| 5 | **Architecture** | Design and internals | [architecture.md](./architecture.md) |
-| 6 | **API Reference** | Decorators, classes, exceptions | [reference/](./reference/index.md) |
-| 7 | **FAQ** | Common questions | [faq.md](./faq.md) |
+| 3 | **Migrating from FastAPI** | Coming from vanilla FastAPI? Start here | [how-to/migrating-from-fastapi.md](./how-to/migrating-from-fastapi.md) |
+| 4 | **User Guide** | Core concepts and patterns | [user-guide/](./user-guide/index.md) |
+| 5 | **How-To Guides** | Practical examples | [how-to/](./how-to/index.md) |
+| 6 | **Architecture** | Design and internals | [architecture.md](./architecture.md) |
+| 7 | **API Reference** | Decorators, classes, exceptions | [reference/](./reference/index.md) |
+| 8 | **FAQ** | Common questions | [faq.md](./faq.md) |
+| 9 | **Troubleshooting** | Common issues and solutions | [troubleshooting.md](./troubleshooting.md) |
 
 ---
 
