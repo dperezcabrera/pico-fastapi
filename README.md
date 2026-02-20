@@ -210,7 +210,7 @@ class StaticFilesConfigurer(FastApiConfigurer):
     priority = -100
     def __init__(self, settings: StaticSettings):
         self.settings = settings
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.mount(self.settings.static_url, StaticFiles(directory=self.settings.static_dir), name="static")
 ```
 
@@ -305,7 +305,7 @@ class JwtConfigurer(FastApiConfigurer):
     def __init__(self, container: PicoContainer, settings: JwtSettings):
         self.container = container
         self.settings = settings
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(JwtMiddleware, container=self.container, secret=self.settings.secret)
 ```
 

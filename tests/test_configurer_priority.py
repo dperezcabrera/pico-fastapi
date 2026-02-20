@@ -33,7 +33,7 @@ class InnerConfigurer1(FastApiConfigurer):
 
     priority = 10
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(TrackingMiddleware, name="inner1")
 
 
@@ -43,7 +43,7 @@ class InnerConfigurer2(FastApiConfigurer):
 
     priority = 5
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(TrackingMiddleware, name="inner2")
 
 
@@ -53,7 +53,7 @@ class OuterConfigurer1(FastApiConfigurer):
 
     priority = -10
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(TrackingMiddleware, name="outer1")
 
 
@@ -63,7 +63,7 @@ class OuterConfigurer2(FastApiConfigurer):
 
     priority = -20
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(TrackingMiddleware, name="outer2")
 
 
@@ -168,7 +168,7 @@ class TestRealWorldConfigurerScenarios:
         class SessionConfigurer(FastApiConfigurer):
             priority = -50  # Negative = outer
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 app.add_middleware(SessionMiddleware, secret_key="test")
 
         assert SessionConfigurer.priority < 0
@@ -181,7 +181,7 @@ class TestRealWorldConfigurerScenarios:
         class AuthConfigurer(FastApiConfigurer):
             priority = 10  # Positive = inner
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass  # Add auth middleware
 
         configurer = AuthConfigurer()
@@ -195,7 +195,7 @@ class TestRealWorldConfigurerScenarios:
         class CORSConfigurer(FastApiConfigurer):
             priority = -100  # Very outer
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass  # Add CORS middleware
 
         configurer = CORSConfigurer()
@@ -209,7 +209,7 @@ class TestRealWorldConfigurerScenarios:
             # Inner: logs after auth, can include user info
             priority = 5
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         @component
@@ -217,7 +217,7 @@ class TestRealWorldConfigurerScenarios:
             # Outer: logs all requests including failed auth
             priority = -5
 
-            def configure(self, app: FastAPI) -> None:
+            def configure_app(self, app: FastAPI) -> None:
                 pass
 
         assert RequestLoggingConfigurer.priority >= 0

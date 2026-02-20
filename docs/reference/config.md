@@ -53,7 +53,7 @@ What it is:
 
 Members:
 - priority: int — A numeric priority used to sort configurers. Negative = outer middleware, non-negative = inner middleware.
-- configure(self, app) -> None: Receives the FastAPI app instance and performs configuration (e.g., include routers, add middleware, register events).
+- configure_app(self, app) -> None: Receives the FastAPI app instance and performs configuration (e.g., include routers, add middleware, register events).
 
 Typical use cases:
 - Add middleware (CORS, logging, tracing).
@@ -70,7 +70,7 @@ from fastapi import FastAPI
 class LoggingConfigurer(FastApiConfigurer):
     priority = -10  # Outer middleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         @app.middleware("http")
         async def log_requests(request, call_next):
             response = await call_next(request)
@@ -80,7 +80,7 @@ class LoggingConfigurer(FastApiConfigurer):
 class HealthRouteConfigurer(FastApiConfigurer):
     priority = 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         from fastapi import APIRouter
         router = APIRouter()
 
@@ -105,7 +105,7 @@ from fastapi import FastAPI
 def test_health_route_configurer():
     app = FastAPI()
     cfg = HealthRouteConfigurer()
-    cfg.configure(app)
+    cfg.configure_app(app)
 
     routes = {r.path for r in app.routes}
     assert "/api/health" in routes

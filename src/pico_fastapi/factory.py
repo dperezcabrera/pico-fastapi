@@ -272,7 +272,7 @@ def _validate_configurers(configurers: List[Any]) -> List[FastApiConfigurer]:
     """
     valid = []
     for c in configurers:
-        if isinstance(c, FastApiConfigurer) and callable(getattr(c, "configure", None)):
+        if isinstance(c, FastApiConfigurer) and callable(getattr(c, "configure_app", None)):
             valid.append(c)
         else:
             logger.warning("Discarding invalid configurer %r: does not implement FastApiConfigurer protocol", c)
@@ -304,7 +304,7 @@ def _apply_configurers(app: FastAPI, configurers: List[FastApiConfigurer]) -> No
         configurers: Configurers to apply, in order.
     """
     for configurer in configurers:
-        configurer.configure(app)
+        configurer.configure_app(app)
 
 
 def _create_lifespan_manager(container: PicoContainer):

@@ -29,7 +29,7 @@ from pico_fastapi import FastApiConfigurer
 class CORSConfigurer(FastApiConfigurer):
     priority = -100  # Outer middleware: before PicoScopeMiddleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=["https://example.com"],
@@ -96,7 +96,7 @@ class CORSConfigurer(FastApiConfigurer):
     def __init__(self, settings: CORSSettings):
         self.settings = settings
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=self.settings.origins,

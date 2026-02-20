@@ -134,7 +134,7 @@ from fastapi import FastAPI
 def test_cors_configurer():
     app = FastAPI()
     configurer = CORSConfigurer()
-    configurer.configure(app)
+    configurer.configure_app(app)
 
     # Verify middleware was added
     middleware_classes = [m.cls.__name__ for m in app.user_middleware]

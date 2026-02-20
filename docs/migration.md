@@ -126,7 +126,7 @@ All configurers ran before `PicoScopeMiddleware`, regardless of priority.  Auth 
 class AuthConfigurer(FastApiConfigurer):
     priority = 10  # Inner: runs AFTER PicoScopeMiddleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         # This middleware can now access request-scoped services
         app.add_middleware(AuthMiddleware)
 
@@ -135,7 +135,7 @@ class AuthConfigurer(FastApiConfigurer):
 class CORSConfigurer(FastApiConfigurer):
     priority = -100  # Outer: runs BEFORE PicoScopeMiddleware
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         app.add_middleware(CORSMiddleware, allow_origins=["*"])
 ```
 

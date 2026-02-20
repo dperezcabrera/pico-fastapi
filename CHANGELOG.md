@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## v0.3.0 — Breaking: Configurer Rename (2026-02-20)
+
+### Changed
+- **Breaking:** Renamed `FastApiConfigurer.configure(app)` to `configure_app(app)` to avoid protocol collision with `DatabaseConfigurer.configure(engine)` in structural typing.
+
+---
+
 ## v0.2.2 — Internal Quality (2026-02-06)
 
 ### Changed

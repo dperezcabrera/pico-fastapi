@@ -45,7 +45,7 @@ class FastApiConfigurer(Protocol):
     def priority(self) -> int:
         return 0
 
-    def configure(self, app: FastAPI) -> None:
+    def configure_app(self, app: FastAPI) -> None:
         ...
 ```
 
