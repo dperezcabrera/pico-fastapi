@@ -105,10 +105,7 @@ from fastapi import FastAPI
 
 def create_app() -> FastAPI:
     # Initialize container - pico-fastapi is auto-discovered
-    container = init(modules=[
-        "myapp.services",
-        "myapp.controllers",
-    ])
+    container = init(modules=["myapp"])  # scans recursively
 
     # Get the configured FastAPI app
     return container.get(FastAPI)
@@ -196,11 +193,7 @@ def create_app() -> FastAPI:
     config = configuration(YamlTreeSource("application.yaml"))
 
     container = init(
-        modules=[
-            "myapp.config",
-            "myapp.services",
-            "myapp.controllers",
-        ],
+        modules=["myapp"],  # scans recursively
         config=config,
     )
 
@@ -378,7 +371,7 @@ class MockGreeterService:
 @pytest.fixture
 def client():
     container = init(
-        modules=["myapp.controllers"],
+        modules=["myapp"],  # scans recursively
         overrides={GreeterService: MockGreeterService()},
     )
     app = container.get(FastAPI)

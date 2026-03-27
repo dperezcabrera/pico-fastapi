@@ -66,8 +66,7 @@ No, but it's recommended. Without pico-boot, you must explicitly include `pico_f
 from pico_ioc import init  # Note: pico_ioc, not pico_boot
 
 container = init(modules=[
-    "myapp.controllers",
-    "myapp.services",
+    "myapp",                    # scans recursively
     "pico_fastapi.config",      # Required
     "pico_fastapi.factory",     # Required
 ])
@@ -368,7 +367,7 @@ No controllers were registered. Ensure your controller modules are scanned.
 
 2. Include controller modules in `init()`:
    ```python
-   container = init(modules=["myapp.controllers"])
+   container = init(modules=["myapp"])  # scans recursively
    ```
 
 3. Check for import errors in controller modules (a silent `ImportError` prevents registration).
