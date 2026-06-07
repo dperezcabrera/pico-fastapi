@@ -1,6 +1,6 @@
-from pico_boot import init
-from pico_ioc import configuration, YamlTreeSource
 from fastapi import FastAPI
+from pico_boot import init
+from pico_ioc import YamlTreeSource, configuration
 
 
 def create_app() -> FastAPI:

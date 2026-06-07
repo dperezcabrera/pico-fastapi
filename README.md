@@ -362,7 +362,7 @@ curl -sL https://raw.githubusercontent.com/dperezcabrera/pico-skills/main/instal
 |---------|-------------|
 | `/add-controller` | Add FastAPI controllers with route decorators |
 | `/add-component` | Add components, factories, interceptors, settings |
-| `/add-tests` | Generate tests for pico-framework components |
+| `/add-tests` | Generate tests for pico components |
 
 All skills: `curl -sL https://raw.githubusercontent.com/dperezcabrera/pico-skills/main/install.sh | bash`
 
