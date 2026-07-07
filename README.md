@@ -1,4 +1,4 @@
-# 📦 pico-fastapi
+# pico-fastapi
 
 [![PyPI](https://img.shields.io/pypi/v/pico-fastapi.svg)](https://pypi.org/project/pico-fastapi/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/dperezcabrera/pico-fastapi)
@@ -17,17 +17,17 @@
 
 It provides scoped lifecycles, automatic controller registration, and clean architectural boundaries, without global state and without FastAPI’s function-based dependency system.
 
-> 🐍 Requires Python 3.11+
-> ⚡ Built on FastAPI  
-> ✅ Fully async-compatible  
-> ✅ Real IoC with constructor injection  
-> ✅ Supports singleton, request, session, and websocket scopes
+> Requires Python 3.11+
+> Built on FastAPI
+> Fully async-compatible
+> Real IoC with constructor injection
+> Supports singleton, request, session, and websocket scopes
 
 With Pico-FastAPI you get the speed, clarity, and async performance of FastAPI, enhanced by a real IoC container for clean, testable, and maintainable applications.
 
 ---
 
-## 🎯 Why pico-fastapi
+## Why pico-fastapi
 
 FastAPI’s built-in dependency system is function-based, which often ties business logic to the framework. Pico-FastAPI moves dependency resolution into the IoC container, promoting separation of concerns and testability.
 
@@ -40,7 +40,7 @@ FastAPI’s built-in dependency system is function-based, which often ties busin
 
 ---
 
-## 🧱 Core Features
+## Core Features
 
 - Controller classes with `@controller`
 - Route decorators: `@get`, `@post`, `@put`, `@delete`, `@patch`, `@websocket`
@@ -51,7 +51,7 @@ FastAPI’s built-in dependency system is function-based, which often ties busin
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 pip install pico-fastapi
@@ -59,7 +59,7 @@ pip install pico-fastapi
 
 ---
 
-## 🚀 Quick Example
+## Quick Example
 
 ```python
 from pico_fastapi import controller, get
@@ -99,7 +99,7 @@ app = container.get(FastAPI)
 ```
 ---
 
-# 🚀 Quick Example (with pico-boot auto-discovery)
+# Quick Example (with pico-boot auto-discovery)
 
 ### 1. Controller
 
@@ -148,7 +148,7 @@ app = container.get(FastAPI)
 
 ---
 
-## 💬 WebSocket Example
+## WebSocket Example
 
 ```python
 from pico_fastapi import controller, websocket
@@ -166,7 +166,7 @@ class ChatController:
 
 ---
 
-## 🧪 Testing with Overrides
+## Testing with Overrides
 
 ```python
 from pico_ioc import init
@@ -190,7 +190,7 @@ assert client.get("/api/hello").json() == {"msg": "test"}
 
 ---
 
-## 📁 Static Files Configuration Example
+## Static Files Configuration Example
 
 ```python
 from dataclasses import dataclass
@@ -243,7 +243,7 @@ fastapi:
 
 ---
 
-## 🔐 JWT Authentication Configuration Example
+## JWT Authentication Configuration Example
 
 ```python
 import base64
@@ -339,7 +339,7 @@ app = container.get(FastAPI)
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 * Controller classes are discovered and registered automatically
 * Each route executes within its own request or websocket scope
@@ -370,7 +370,7 @@ See [pico-skills](https://github.com/dperezcabrera/pico-skills) for details.
 
 ---
 
-## 📝 License
+## License
 
 MIT
 

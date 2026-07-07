@@ -1,14 +1,14 @@
-# 📘 Tutorial: Your First API in 5 Minutes
+# Tutorial: Your First API in 5 Minutes
 
 In this tutorial, we will build a simple “Greeting API” using `pico-fastapi`.
 You will learn how to define services, create controllers, and wire everything together using the container.
 
-> 💡 **Recommended:** Use `pico-boot` for auto-discovery and zero-config bootstrapping.
+> **Recommended:** Use `pico-boot` for auto-discovery and zero-config bootstrapping.
 > If you are not using `pico-boot`, see the **Classic Version (without pico-boot)** linked below.
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Install all required packages:
 
@@ -18,7 +18,7 @@ pip install fastapi uvicorn pico-ioc pico-fastapi pico-boot
 
 ---
 
-# 🚀 Step 1: Define your Service
+# Step 1: Define your Service
 
 ```python
 # services.py
@@ -32,7 +32,7 @@ class GreeterService:
 
 ---
 
-# 🚀 Step 2: Create a Controller
+# Step 2: Create a Controller
 
 ```python
 # controllers.py
@@ -51,7 +51,7 @@ class GreeterController:
 
 ---
 
-# 🚀 Step 3: Wire the Application (Using pico-boot)
+# Step 3: Wire the Application (Using pico-boot)
 
 With `pico-boot`, `pico-fastapi` is automatically discovered via entry points.
 You only need to list **your** modules.
@@ -73,26 +73,26 @@ def create_app() -> FastAPI:
 app = create_app()
 ```
 
-✔ No `"pico_fastapi"`
-✔ Auto-loaded
-✔ Cleaner, safer bootstrapping
+No `"pico_fastapi"`
+Auto-loaded
+Cleaner, safer bootstrapping
 
 ---
 
-# 🚀 Step 4: Run It
+# Step 4: Run It
 
 ```bash
 uvicorn main:app --reload
 ```
 
 Then open:
-👉 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 You will see the automatically generated Swagger UI with your `/greet/{name}` endpoint.
 
 ---
 
-# 💡 Key Takeaways
+# Key Takeaways
 
 1. **Clear separation of concerns**
    Your services contain pure business logic—not framework code.
@@ -108,7 +108,7 @@ You will see the automatically generated Swagger UI with your `/greet/{name}` en
 
 ---
 
-# 📎 Classic Version (Without pico-boot)
+# Classic Version (Without pico-boot)
 
 If you are not using `pico-boot`, use `pico_ioc.init()` directly and include `"pico_fastapi"` in the modules list:
 

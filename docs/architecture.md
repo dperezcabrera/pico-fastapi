@@ -1,4 +1,4 @@
-# 🧭 Architecture Overview — pico-fastapi
+# Architecture Overview — pico-fastapi
 
 `pico-fastapi` is a thin integration layer that connects **Pico-IoC**'s inversion-of-control container with **FastAPI**'s routing and request handling.
 Its purpose is not to replace FastAPI — but to ensure that **application logic is resolved through the container**, not through function-based dependency injection.
