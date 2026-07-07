@@ -23,6 +23,17 @@ from pico_fastapi.factory import (
 )
 
 
+def _route_paths(routes):
+    """Flatten route paths; starlette >= 1.3 nests them inside _IncludedRouter."""
+    paths = []
+    for r in routes:
+        if hasattr(r, "path"):
+            paths.append(r.path)
+        if hasattr(r, "routes"):
+            paths.extend(_route_paths(r.routes))
+    return paths
+
+
 class TestPriorityOf:
     """Tests for _priority_of helper function."""
 
@@ -162,9 +173,7 @@ class TestRegisterControllers:
         app = FastAPI()
         register_controllers(app, mock_container)
 
-        # Check routes are registered
-        routes = [r.path for r in app.routes]
-        assert "/api/items" in routes
+        assert "/api/items" in _route_paths(app.routes)
 
 
 class TestFastApiAppFactory:
