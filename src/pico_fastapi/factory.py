@@ -17,7 +17,7 @@ from starlette.responses import JSONResponse, Response
 
 from .config import FastApiConfigurer, FastApiSettings
 from .decorators import IS_CONTROLLER_ATTR, PICO_CONTROLLER_META, PICO_ROUTE_KEY
-from .exceptions import NoControllersFoundError
+from .exceptions import NoControllersFoundError, PicoFastAPIError
 from .middleware import PicoScopeMiddleware
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,12 @@ def _priority_of(obj: Any) -> int:
     """
     try:
         return int(getattr(obj, "priority", 0))
-    except Exception:
+    except Exception as exc:
+        logger.warning(
+            "Configurer %s has an unusable priority (%s); treating it as 0",
+            type(obj).__name__,
+            exc,
+        )
         return 0
 
 
@@ -93,7 +98,12 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
     """
 
     async def http_route_handler(**kwargs):
-        controller_instance = await container.aget(controller_cls)
+        try:
+            controller_instance = await container.aget(controller_cls)
+        except Exception as exc:
+            raise PicoFastAPIError(
+                f"Failed to resolve controller {controller_cls.__name__} for {method_name}(): {exc}"
+            ) from exc
         method_to_call = getattr(controller_instance, method_name)
         res = method_to_call(**kwargs)
         if inspect.isawaitable(res):
@@ -290,9 +300,9 @@ def _split_configurers_by_priority(configurers: List[FastApiConfigurer]) -> tupl
         ``priority >= 0`` and *outer* configurers have ``priority < 0``.
         Each group is sorted by ascending priority.
     """
-    sorted_conf = sorted(configurers, key=_priority_of)
-    inner = [c for c in sorted_conf if _priority_of(c) >= 0]
-    outer = [c for c in sorted_conf if _priority_of(c) < 0]
+    by_priority = sorted(((_priority_of(c), c) for c in configurers), key=lambda pc: pc[0])
+    inner = [c for p, c in by_priority if p >= 0]
+    outer = [c for p, c in by_priority if p < 0]
     return inner, outer
 
 
@@ -305,29 +315,6 @@ def _apply_configurers(app: FastAPI, configurers: List[FastApiConfigurer]) -> No
     """
     for configurer in configurers:
         configurer.configure_app(app)
-
-
-def _create_lifespan_manager(container: PicoContainer):
-    """Create the lifespan context manager for graceful shutdown.
-
-    The returned context manager performs async cleanup of all container
-    resources and then shuts down the container when the application
-    stops.
-
-    Args:
-        container: The pico-ioc container to manage.
-
-    Returns:
-        An async context manager suitable for ``app.router.lifespan_context``.
-    """
-
-    @asynccontextmanager
-    async def lifespan_manager(app_instance):
-        yield
-        await container.cleanup_all_async()
-        container.shutdown()
-
-    return lifespan_manager
 
 
 @component
@@ -367,7 +354,20 @@ class PicoLifespanConfigurer:
         _apply_configurers(app, outer)
 
         register_controllers(app, container)
-        app.router.lifespan_context = _create_lifespan_manager(container)
+
+        @asynccontextmanager
+        async def lifespan_manager(app_instance):
+            yield
+            try:
+                await container.cleanup_all_async()
+            except Exception:
+                # A failing cleanup hook must not prevent container shutdown;
+                # log it so the leak is visible instead of masked.
+                logger.exception("Error during container cleanup at shutdown")
+            finally:
+                container.shutdown()
+
+        app.router.lifespan_context = lifespan_manager
 
 
 @factory

@@ -7,11 +7,7 @@ def create_app() -> FastAPI:
     config = configuration(YamlTreeSource("application.yaml"))
 
     container = init(
-        modules=[
-            "myapp.config",
-            "myapp.services",
-            "myapp.controllers",
-        ],
+        modules=["myapp"],  # scanned recursively: config, services, controllers
         config=config,
     )
 
