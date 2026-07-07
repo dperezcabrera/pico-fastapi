@@ -47,11 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## v0.2.0 — Ecosystem Integration (2025-11-25)
 
-### 🔌 New
+### New
 - Added native `pico-boot` auto-discovery using the `pico_boot.modules` entry point.
 - `pico-fastapi` is now automatically detected and loaded when initializing applications with `pico-boot`.
 
-### 🧱 No Behavioral Changes
+### No Behavioral Changes
 - No updates to middleware behavior.
 - No DI or request lifecycle changes.
 - No breaking changes.
