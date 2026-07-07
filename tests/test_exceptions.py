@@ -41,7 +41,7 @@ class TestNoControllersFoundError:
         msg = str(error)
 
         assert "No controllers were registered" in msg
-        assert "controller modules are scanned" in msg
+        assert "@controller decorator" in msg
 
     def test_no_args_required(self):
         """NoControllersFoundError requires no arguments."""
