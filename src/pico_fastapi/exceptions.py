@@ -44,4 +44,9 @@ class NoControllersFoundError(PicoFastAPIError):
     """
 
     def __init__(self):
-        super().__init__("No controllers were registered. Ensure your controller modules are scanned.")
+        super().__init__(
+            "No controllers were registered. Check that: "
+            "(1) your controller modules are listed in init(modules=[...]), "
+            "(2) the classes carry the @controller decorator, "
+            "(3) no import error prevented the modules from loading."
+        )
