@@ -15,7 +15,7 @@ Invalid configurers are now logged as a warning and silently discarded instead o
 
 #### Before (v0.2.1)
 
-```python
+```text
 from pico_fastapi import InvalidConfigurerError
 
 # Application code that caught the error
