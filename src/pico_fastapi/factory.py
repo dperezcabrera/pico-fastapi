@@ -79,6 +79,18 @@ def _normalize_http_result(result: Any) -> Response:
     return JSONResponse(content=result)
 
 
+def _copy_pico_markers(method, handler) -> None:
+    """Carry ``_pico_*`` marker attributes onto the registered endpoint.
+
+    Cross-cutting modules (pico-client-auth's @allow_anonymous /
+    @requires_role, and any future marker) read attributes off the route's
+    endpoint; the DI wrapper must expose the original method's markers.
+    """
+    for attr, value in vars(method).items():
+        if attr.startswith("_pico_"):
+            setattr(handler, attr, value)
+
+
 def _create_http_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
     """Create an async HTTP route handler that resolves the controller via DI.
 
@@ -198,6 +210,7 @@ def _register_route(router: APIRouter, container: PicoContainer, cls: type, name
 
     if method_type == "WEBSOCKET":
         handler_func = _create_websocket_handler(container, cls, name, sig)
+        _copy_pico_markers(method, handler_func)
         router.add_api_websocket_route(
             path=route_info["path"],
             endpoint=handler_func,
@@ -205,6 +218,7 @@ def _register_route(router: APIRouter, container: PicoContainer, cls: type, name
         )
     else:
         handler_func = _create_http_handler(container, cls, name, sig)
+        _copy_pico_markers(method, handler_func)
         router.add_api_route(
             path=route_info["path"],
             endpoint=handler_func,
