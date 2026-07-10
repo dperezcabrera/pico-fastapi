@@ -71,10 +71,10 @@ Configurers decorated with `@component` are automatically discovered and execute
 ```python
 from fastapi import FastAPI
 from pico_boot import init
-from pico_ioc import configuration, DictTreeSource
+from pico_ioc import configuration, DictSource
 
 def test_settings_applied():
-    config = configuration(DictTreeSource({
+    config = configuration(DictSource({
         "fastapi": {
             "title": "Integration Test API",
             "version": "9.9.9",
@@ -93,4 +93,4 @@ def test_settings_applied():
 
 - **Apply settings early**: Debug mode affects exception handling and error pages; settings are applied during app creation, before any routers or middleware.
 - **Priority ordering**: Use the `priority` attribute on configurers to control execution order. Negative = outer middleware, non-negative = inner middleware.
-- **Testability**: Pass different configuration sources (e.g., `DictTreeSource`) to provide test-specific settings without changing application code.
+- **Testability**: Pass different configuration sources (e.g., `DictSource`) to provide test-specific settings without changing application code.
