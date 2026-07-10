@@ -28,7 +28,7 @@ class MyController:
 
 ### Route Decorators
 
-```python
+```text
 @get(path, **kwargs)        # HTTP GET
 @post(path, **kwargs)       # HTTP POST
 @put(path, **kwargs)        # HTTP PUT

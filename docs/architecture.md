@@ -120,7 +120,7 @@ At startup:
 
 <!-- end list -->
 
-```python
+```text
 async def route_handler(...):
     controller = await container.aget(ControllerClass)
     method = getattr(controller, method_name)
