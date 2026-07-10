@@ -157,3 +157,5 @@ class CORSConfigurer(FastApiConfigurer):
 1. **New to pico-fastapi?** Start with [Getting Started](./getting-started.md)
 2. **Want examples?** Check the [How-To Guides](./how-to/index.md)
 3. **Building production apps?** Read about [Configurers](./user-guide/configurers.md)
+
+**See it in context**: the [flagship use case](https://dperezcabrera.github.io/pico-boot/flagship/) wires this module into a full order platform together with the rest of the ecosystem.
