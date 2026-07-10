@@ -39,7 +39,7 @@ Complete reference documentation for pico-fastapi's public API.
 
 Marks a class as a FastAPI controller with automatic route registration.
 
-```python
+```text
 @controller(
     cls: Type = None,
     *,
@@ -81,7 +81,7 @@ class UserController:
 
 Define HTTP method endpoints on controller methods.
 
-```python
+```text
 @get(path: str, **kwargs)
 @post(path: str, **kwargs)
 @put(path: str, **kwargs)
@@ -138,7 +138,7 @@ class UserController:
 
 Defines a WebSocket endpoint on a controller method.
 
-```python
+```text
 @websocket(path: str, **kwargs)
 ```
 
@@ -278,8 +278,10 @@ class PicoFastAPIError(Exception):
 
 ```python
 try:
+    ...
     # pico-fastapi operations
 except PicoFastAPIError as e:
+    ...
     # Handle any pico-fastapi error
 ```
 

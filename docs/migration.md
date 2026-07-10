@@ -26,14 +26,14 @@ except InvalidConfigurerError as e:
     print(f"Bad configurer: {e}")
 ```
 
-```python
+```text
 # Import that existed in v0.2.1
 from pico_fastapi.exceptions import InvalidConfigurerError
 ```
 
 #### After (v0.2.2+)
 
-```python
+```text
 # InvalidConfigurerError no longer exists.
 # Remove all imports and except clauses referencing it.
 
