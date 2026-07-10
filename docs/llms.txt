@@ -1,0 +1,34 @@
+# pico-fastapi
+
+> Seamless integration between Pico-IoC and FastAPI with controller-based routing and automatic scope management
+
+## Docs
+
+- [Home](https://dperezcabrera.github.io/pico-fastapi/)
+- [Getting Started](https://dperezcabrera.github.io/pico-fastapi/getting-started/)
+- [Tutorial](https://dperezcabrera.github.io/pico-fastapi/tutorial/)
+- [index](https://dperezcabrera.github.io/pico-fastapi/user-guide/)
+- [Configurers](https://dperezcabrera.github.io/pico-fastapi/user-guide/configurers/)
+- [index](https://dperezcabrera.github.io/pico-fastapi/how-to/)
+- [Session Shopping Cart](https://dperezcabrera.github.io/pico-fastapi/how-to/session-cart/)
+- [Apply Settings](https://dperezcabrera.github.io/pico-fastapi/how-to/settings-applied/)
+- [WebSocket Chat](https://dperezcabrera.github.io/pico-fastapi/how-to/websocket-chat/)
+- [CORS Middleware](https://dperezcabrera.github.io/pico-fastapi/how-to/cors/)
+- [WebSocket Controllers](https://dperezcabrera.github.io/pico-fastapi/how-to/websocket/)
+- [Testing Controllers](https://dperezcabrera.github.io/pico-fastapi/how-to/testing/)
+- [index](https://dperezcabrera.github.io/pico-fastapi/reference/)
+- [Configuration](https://dperezcabrera.github.io/pico-fastapi/reference/config/)
+- [Exceptions](https://dperezcabrera.github.io/pico-fastapi/reference/exceptions/)
+- [Architecture](https://dperezcabrera.github.io/pico-fastapi/architecture/)
+- [Test Suite](https://dperezcabrera.github.io/pico-fastapi/explanation/test-suite/)
+- [AI Coding Skills](https://dperezcabrera.github.io/pico-fastapi/skills/)
+- [FAQ](https://dperezcabrera.github.io/pico-fastapi/faq/)
+- [Migration Guide](https://dperezcabrera.github.io/pico-fastapi/migration/)
+- [Changelog](https://dperezcabrera.github.io/pico-fastapi/CHANGELOG/)
+
+## For agents
+
+- [Full docs in one file](https://dperezcabrera.github.io/pico-fastapi/llms-full.txt)
+- [AGENTS.md (conventions and boundaries)](https://raw.githubusercontent.com/dperezcabrera/pico-fastapi/main/AGENTS.md)
+- [Flagship use case (whole ecosystem wired)](https://dperezcabrera.github.io/pico-boot/flagship/)
+- [PyPI](https://pypi.org/project/pico-fastapi/)
