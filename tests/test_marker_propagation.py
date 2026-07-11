@@ -28,8 +28,7 @@ def _leaf_routes(routes):
             yield r
 
 
-def test_markers_reach_registered_endpoint(monkeypatch):
-    monkeypatch.setenv("PICO_BOOT_AUTO_PLUGINS", "false")
+def test_markers_reach_registered_endpoint():
     cfg = configuration(DictSource({"fastapi": {"title": "t"}}))
     container = init(modules=["pico_fastapi", sys.modules[__name__]], config=cfg)
     app = container.get(FastAPI)
