@@ -1,0 +1,50 @@
+# pico-fastapi
+
+> Seamless integration between Pico-IoC and FastAPI with controller-based routing and automatic scope management
+
+Install: `pip install pico-fastapi`. Import surface: `from pico_fastapi import ...`.
+
+## Usage
+
+```python
+from pico_fastapi import controller, get
+
+@controller(prefix="/api")
+class ApiController:
+    def __init__(self, service: "MyService"):
+        self.service = service
+
+    @get("/hello")
+    async def hello(self):
+        return {"msg": self.service.greet()}
+```
+
+## Public API
+
+- `class FastApiConfigurer(Protocol)` — Protocol for pluggable FastAPI configuration hooks.
+- `class FastApiSettings` — Type-safe application settings for the FastAPI instance.
+- `controller(cls: Optional[Type[Any]]=None, *, scope: str='request', **kwargs: Any)` — Mark a class as a pico-fastapi controller with DI and auto-routing.
+- `get(path: str, **kwargs: Any)` — Define a GET endpoint on a controller method.
+- `post(path: str, **kwargs: Any)` — Define a POST endpoint on a controller method.
+- `put(path: str, **kwargs: Any)` — Define a PUT endpoint on a controller method.
+- `delete(path: str, **kwargs: Any)` — Define a DELETE endpoint on a controller method.
+- `patch(path: str, **kwargs: Any)` — Define a PATCH endpoint on a controller method.
+- `websocket(path: str, **kwargs: Any)` — Define a WebSocket endpoint on a controller method.
+- `class FastApiAppFactory` — Factory that creates the ``FastAPI`` application as a singleton.
+- `class PicoFastAPIError(Exception)` — Base exception for all pico-fastapi errors.
+- `class NoControllersFoundError(PicoFastAPIError)` — Raised when no ``@controller``-decorated classes are found at startup.
+
+## Docs
+
+- docs/CHANGELOG.md
+- docs/architecture.md
+- docs/explanation/ (1 pages)
+- docs/faq.md
+- docs/getting-started.md
+- docs/how-to/ (8 pages)
+- docs/migration.md
+- docs/reference/ (3 pages)
+- docs/skills.md
+- docs/troubleshooting.md
+- docs/tutorial.md
+- docs/user-guide/ (2 pages)
