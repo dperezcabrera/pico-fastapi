@@ -31,7 +31,7 @@ src/pico_fastapi/
 - **`FastApiConfigurer`**: Protocol for setup hooks. `priority >= 0` = inner (after scope middleware), `priority < 0` = outer (before). Sandwich pattern.
 - **`FastApiAppFactory`**: Creates FastAPI app from `FastApiSettings`
 - **`PicoLifespanConfigurer`**: Applies configurers, registers controllers, adds scope middleware during app lifespan
-- **Controller discovery**: Via `container._locator._metadata` - finds classes with `_pico_meta` containing controller info
+- **Controller discovery**: Via the public `container.keys()` seam (pico-ioc >= 2.4.0) - keeps the type keys marked with the `@controller` attribute
 
 ## Code Style
 
