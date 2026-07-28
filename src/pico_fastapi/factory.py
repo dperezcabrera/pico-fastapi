@@ -176,8 +176,8 @@ def _create_websocket_handler(container: PicoContainer, controller_cls: type, me
 def _find_controller_classes(container: PicoContainer) -> list[type]:
     """Find all classes marked with ``@controller`` in the container.
 
-    Inspects the container's internal locator metadata to discover
-    registered controller components.
+    Enumerates registered keys via the public ``container.keys()`` seam and
+    keeps the type keys carrying the controller marker.
 
     Args:
         container: The pico-ioc container to search.
@@ -185,12 +185,7 @@ def _find_controller_classes(container: PicoContainer) -> list[type]:
     Returns:
         A list of controller classes found in the container.
     """
-    locator = getattr(container, "_locator", None)
-    if not locator:
-        return []
-    return [
-        key for key, _ in locator._metadata.items() if isinstance(key, type) and getattr(key, IS_CONTROLLER_ATTR, False)
-    ]
+    return [key for key in container.keys() if isinstance(key, type) and getattr(key, IS_CONTROLLER_ATTR, False)]
 
 
 def _register_route(router: APIRouter, container: PicoContainer, cls: type, name: str, method, route_info: dict):

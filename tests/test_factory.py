@@ -127,19 +127,17 @@ class TestRegisterControllers:
     def test_raises_error_when_no_controllers(self):
         """Raises NoControllersFoundError when no controllers registered."""
         mock_container = MagicMock()
-        mock_locator = MagicMock()
-        mock_locator._metadata = {}
-        mock_container._locator = mock_locator
+        mock_container.keys.return_value = []
 
         app = FastAPI()
 
         with pytest.raises(NoControllersFoundError):
             register_controllers(app, mock_container)
 
-    def test_raises_when_no_locator(self):
-        """Raises NoControllersFoundError if container has no locator."""
+    def test_raises_when_registry_empty(self):
+        """Raises NoControllersFoundError when the container has no keys."""
         mock_container = MagicMock()
-        del mock_container._locator
+        mock_container.keys.return_value = []
 
         app = FastAPI()
         with pytest.raises(NoControllersFoundError):
@@ -155,9 +153,7 @@ class TestRegisterControllers:
                 return []
 
         mock_container = MagicMock()
-        mock_locator = MagicMock()
-        mock_locator._metadata = {TestController: {}}
-        mock_container._locator = mock_locator
+        mock_container.keys.return_value = [TestController]
 
         app = FastAPI()
         register_controllers(app, mock_container)
@@ -260,10 +256,10 @@ class TestPicoLifespanConfigurer:
 class TestFindControllerClasses:
     """Tests for _find_controller_classes helper function."""
 
-    def test_returns_empty_when_no_locator(self):
-        """Returns empty list if container has no locator."""
+    def test_returns_empty_when_registry_empty(self):
+        """Returns empty list when the container exposes no keys."""
         mock_container = MagicMock()
-        del mock_container._locator
+        mock_container.keys.return_value = []
 
         result = _find_controller_classes(mock_container)
         assert result == []
@@ -276,16 +272,16 @@ class TestFindControllerClasses:
             pass
 
         mock_container = MagicMock()
-        mock_container._locator._metadata = {TestController: {}, str: {}}
+        mock_container.keys.return_value = [TestController, str]
 
         result = _find_controller_classes(mock_container)
         assert TestController in result
         assert str not in result
 
     def test_returns_empty_when_no_controllers(self):
-        """Returns empty list if no controllers in metadata."""
+        """Returns empty list if no registered key is a controller."""
         mock_container = MagicMock()
-        mock_container._locator._metadata = {str: {}, int: {}}
+        mock_container.keys.return_value = [str, int]
 
         result = _find_controller_classes(mock_container)
         assert result == []
