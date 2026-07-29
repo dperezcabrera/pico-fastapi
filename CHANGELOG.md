@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Controller discovery enumerates the registry through the public `container.keys()` seam (pico-ioc >= 2.4.0) instead of reaching into the container's private locator metadata.
+
+## v0.3.1 — Docs & CI (2026-07-10)
+
+### Changed
+
+- Documentation raised to the fleet standard (docs QA at zero, AI-first `llms.txt`, flagship use case linked, emojis stripped).
+- SonarCloud analysis runs from CI on main pushes; dependency floors aligned with the fleet canon.
+
 ## v0.3.0 — Breaking: Configurer Rename (2026-02-20)
 
 ### Changed
