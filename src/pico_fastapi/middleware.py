@@ -11,14 +11,15 @@ from pico_ioc import PicoContainer
 
 
 def _cleanup_scope(container: PicoContainer, scope_name: str, scope_id: str) -> None:
-    """Evict the scope's instances and run their ``@cleanup`` hooks.
+    """Clean up a scope if the container has caches.
 
     Args:
         container: The pico-ioc container instance.
         scope_name: Name of the scope to clean up (e.g. ``"request"``).
         scope_id: Unique identifier of the scope instance.
     """
-    container.cleanup_scope(scope_name, scope_id)
+    if hasattr(container, "_caches"):
+        container._caches.cleanup_scope(scope_name, scope_id)
 
 
 def _get_or_create_session_id(scope: dict) -> str:
