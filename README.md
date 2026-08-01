@@ -61,46 +61,6 @@ pip install pico-fastapi
 
 ## Quick Example
 
-```python
-from pico_fastapi import controller, get
-
-@controller(prefix="/api")
-class ApiController:
-    def __init__(self, service: "MyService"):
-        self.service = service
-
-    @get("/hello")
-    async def hello(self):
-        return {"msg": self.service.greet()}
-```
-
-```python
-from pico_ioc import component
-
-@component
-class MyService:
-    def greet(self) -> str:
-        return "hello from service"
-```
-
-```python
-from pico_ioc import init
-from fastapi import FastAPI
-
-container = init(
-    modules=[
-        "controllers",
-        "services",
-        "pico_fastapi",
-    ]
-)
-
-app = container.get(FastAPI)
-```
----
-
-# Quick Example (with pico-boot auto-discovery)
-
 ### 1. Controller
 
 ```python
@@ -127,15 +87,13 @@ class MyService:
         return "hello from service"
 ```
 
-### 3. App Initialization (Using pico-boot)
+### 3. App initialization
 
 ```python
 from pico_boot import init
 from fastapi import FastAPI
 
-# No need to declare "pico_fastapi" anymore.
-# pico-fastapi is auto-discovered via entry points.
-
+# pico_fastapi is auto-discovered via its entry point: do not list it.
 container = init(
     modules=[
         "controllers",
@@ -177,6 +135,9 @@ class FakeService:
     def greet(self) -> str:
         return "test"
 
+# Tests use pico_ioc.init, not pico_boot.init: it loads exactly the listed
+# modules, so other pico plugins installed in the venv cannot leak into the
+# test. That is why "pico_fastapi" is declared explicitly here.
 container = init(
     modules=["controllers", "services", "pico_fastapi"],
     overrides={"MyService": FakeService()}
@@ -216,12 +177,12 @@ class StaticFilesConfigurer(FastApiConfigurer):
 ```
 
 ```python
-from pico_ioc import init, configuration, YamlTreeSource
+from pico_boot import init
+from pico_ioc import configuration, YamlTreeSource
 from fastapi import FastAPI
 
 container = init(
     modules=[
-        "pico_fastapi",
         "static_config",
     ],
     config=configuration(
@@ -311,7 +272,7 @@ class JwtConfigurer(FastApiConfigurer):
 ```
 
 ```python
-from pico_ioc import init
+from pico_boot import init
 from fastapi import FastAPI, Request
 from pico_fastapi import controller, get
 
@@ -328,7 +289,6 @@ class ProfileController:
 
 container = init(
     modules=[
-        "pico_fastapi",
         "jwt_config",
         "controllers",
     ]
