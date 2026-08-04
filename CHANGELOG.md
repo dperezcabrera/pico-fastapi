@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+## v0.4.0 — Public pico-ioc seams (2026-08-04)
+
 ### Changed
 
-- Controller discovery enumerates the registry through the public `container.keys()` seam (pico-ioc >= 2.4.0) instead of reaching into the container's private locator metadata.
+- Controller discovery enumerates the registry through the public `container.keys()` seam instead of reaching into the container's private locator metadata.
+- Request-scope cleanup calls the public `container.cleanup_scope()` instead of `container._caches.cleanup_scope()`, so the `hasattr(container, "_caches")` guard disappears.
+- Minimum pico-ioc raised to 2.5.0, the version that makes both seams public.
 
 ## v0.3.1 — Docs & CI (2026-07-10)
 

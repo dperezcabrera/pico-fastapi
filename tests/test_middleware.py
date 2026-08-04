@@ -14,21 +14,13 @@ from pico_fastapi.middleware import (
 class TestCleanupScope:
     """Tests for _cleanup_scope helper function."""
 
-    def test_calls_cleanup_when_caches_exist(self):
-        """Calls cleanup_scope when container has _caches."""
+    def test_delegates_to_public_cleanup_scope(self):
+        """Calls the container's public cleanup_scope seam."""
         container = MagicMock()
-        container._caches = MagicMock()
 
         _cleanup_scope(container, "request", "req-123")
 
-        container._caches.cleanup_scope.assert_called_once_with("request", "req-123")
-
-    def test_no_error_when_caches_missing(self):
-        """Does nothing when container has no _caches."""
-        container = MagicMock(spec=[])  # No _caches attribute
-
-        # Should not raise
-        _cleanup_scope(container, "request", "req-123")
+        container.cleanup_scope.assert_called_once_with("request", "req-123")
 
 
 class TestGetOrCreateSessionId:
@@ -65,7 +57,6 @@ class TestPicoScopeMiddleware:
         container.as_current.return_value.__exit__ = MagicMock()
         container.scope.return_value.__enter__ = MagicMock()
         container.scope.return_value.__exit__ = MagicMock()
-        container._caches = MagicMock()
         return container
 
     @pytest.fixture
@@ -163,8 +154,8 @@ class TestPicoScopeMiddleware:
 
         await middleware(scope, AsyncMock(), AsyncMock())
 
-        mock_container._caches.cleanup_scope.assert_called()
-        cleanup_call = mock_container._caches.cleanup_scope.call_args
+        mock_container.cleanup_scope.assert_called()
+        cleanup_call = mock_container.cleanup_scope.call_args
         assert cleanup_call[0][0] == "request"
 
     @pytest.mark.asyncio
@@ -175,8 +166,8 @@ class TestPicoScopeMiddleware:
 
         await middleware(scope, AsyncMock(), AsyncMock())
 
-        mock_container._caches.cleanup_scope.assert_called()
-        cleanup_call = mock_container._caches.cleanup_scope.call_args
+        mock_container.cleanup_scope.assert_called()
+        cleanup_call = mock_container.cleanup_scope.call_args
         assert cleanup_call[0][0] == "websocket"
 
     @pytest.mark.asyncio
@@ -197,23 +188,7 @@ class TestPicoScopeMiddleware:
             await middleware(scope, AsyncMock(), AsyncMock())
 
         # Cleanup should still be called
-        mock_container._caches.cleanup_scope.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_no_cleanup_when_caches_missing(self, mock_app):
-        """No error when container has no _caches attribute."""
-        container = MagicMock()
-        container.as_current.return_value.__enter__ = MagicMock()
-        container.as_current.return_value.__exit__ = MagicMock()
-        container.scope.return_value.__enter__ = MagicMock()
-        container.scope.return_value.__exit__ = MagicMock()
-        del container._caches
-
-        middleware = PicoScopeMiddleware(mock_app, container)
-        scope = {"type": "http"}
-
-        # Should not raise
-        await middleware(scope, AsyncMock(), AsyncMock())
+        mock_container.cleanup_scope.assert_called()
 
     @pytest.mark.asyncio
     async def test_calls_app_with_scope_receive_send(self, mock_container, mock_app):
