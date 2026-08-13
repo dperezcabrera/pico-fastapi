@@ -17,7 +17,7 @@
 
 It provides scoped lifecycles, automatic controller registration, and clean architectural boundaries, without global state and without FastAPI’s function-based dependency system.
 
-> Requires Python 3.11+
+> Requires Python 3.11+ (tested on 3.11, 3.12, 3.13 and 3.14)
 > Built on FastAPI
 > Fully async-compatible
 > Real IoC with constructor injection
