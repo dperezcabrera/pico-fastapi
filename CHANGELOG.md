@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+## v0.4.1 — Session extra no longer caps Starlette (2026-09-19)
+
+### Fixed
+
+- The `session` extra installs `itsdangerous`, the only thing Starlette's own `SessionMiddleware` needs. It used to pull `starlette-session`, an unrelated package that requires `starlette<1` and silently held installs on Starlette 0.x. Verified against Starlette 1.6.0 and FastAPI 0.141.1.
+
 ## v0.4.0 — Public pico-ioc seams (2026-08-04)
 
 ### Changed

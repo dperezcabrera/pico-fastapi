@@ -41,7 +41,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-session = ["starlette-session"]
+session = ["itsdangerous"]
 run = ["uvicorn[standard]"]
 
 [project.urls]

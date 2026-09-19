@@ -240,7 +240,8 @@ Check these common issues:
 
 ### How does session scope work?
 
-Session scope requires `SessionMiddleware` from Starlette:
+Session scope requires `SessionMiddleware` from Starlette, which needs
+`itsdangerous` (`pip install "pico-fastapi[session]"`):
 
 ```python
 from starlette.middleware.sessions import SessionMiddleware
