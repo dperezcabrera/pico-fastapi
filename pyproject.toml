@@ -37,7 +37,7 @@ classifiers = [
 
 dependencies = [
     "pico-ioc >= 2.5.0",
-    "fastapi >= 0.100"
+    "fastapi >= 0.110.1"
 ]
 
 [project.optional-dependencies]

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+### Fixed
+
+- Dependency floors raised to what the test suite proves: `fastapi >= 0.110.1` (was 0.100, whose TestClient no longer works with current httpx). A new CI job runs the suite with every declared floor pinned, so a floor that installs but does not work can no longer ship.
+
 ## v0.4.1 — Session extra no longer caps Starlette (2026-09-19)
 
 ### Fixed
