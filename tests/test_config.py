@@ -38,6 +38,7 @@ class TestFastApiSettings:
             "title": "Pico-FastAPI App",
             "version": "1.0.0",
             "debug": False,
+            "telemetry": {"auto_configure": False},
         }
 
     def test_can_create_fastapi_app(self):

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+### Added
+
+- `FastApiSettings.telemetry` (config key `fastapi.telemetry`) is passed to FastAPI's built-in OpenTelemetry (FastAPI >= 0.142; ignored by older versions).
+
+### Fixed
+
+- FastAPI 0.142 enables OpenTelemetry by default and, with `OTEL_EXPORTER_OTLP_ENDPOINT` set, appends its own OTLP exporter to the global providers at startup: an app whose providers were already configured (for example by pico-otel) exported every span twice. `telemetry` now defaults to `{"auto_configure": False}`, so FastAPI records its spans against your providers but never adds exporters of its own. Opt back in with `fastapi.telemetry.auto_configure: true`.
+- The app factory passes settings to `FastAPI()` without deep-copying them, so `telemetry` can carry OpenTelemetry providers (it failed with `cannot pickle '_thread.lock' object`).
+
 ## v0.4.2 — Dependency floors match the test suite (2026-09-29)
 
 ### Fixed

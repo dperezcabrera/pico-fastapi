@@ -17,6 +17,31 @@ Fields:
 - title: str — The application title (propagated to FastAPI).
 - version: str — The application version (propagated to FastAPI).
 - debug: bool — Whether to run FastAPI in debug mode.
+- telemetry: dict — Passed to FastAPI's built-in OpenTelemetry (FastAPI >= 0.142;
+  older versions ignore it). Default `{"auto_configure": False}`.
+
+### Telemetry (FastAPI >= 0.142)
+
+FastAPI 0.142 instruments every app with OpenTelemetry by default and, when
+`OTEL_EXPORTER_OTLP_ENDPOINT` is set, appends its own OTLP exporter to the global
+providers when the app starts. If your application (or pico-otel) already
+configured an exporter, every span would be exported twice. pico-fastapi
+therefore defaults `telemetry` to `{"auto_configure": False}`: FastAPI still
+records its spans against whatever providers you configured, but never adds
+exporters of its own.
+
+To let FastAPI configure exporting itself (no other OpenTelemetry setup in the
+app, `fastapi[standard]` installed), opt back in:
+
+```yaml
+fastapi:
+  telemetry:
+    auto_configure: true
+```
+
+Any key FastAPI documents for `telemetry` (`tracing`, `metrics`, `logs`,
+`operation_spans`, ...) can be set the same way. Setting `telemetry` replaces the
+default dict, so keep `auto_configure: false` if you only want to change another key.
 
 How to use:
 - Provide a configuration source with a `fastapi` prefix when initializing the container.

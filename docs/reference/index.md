@@ -226,6 +226,7 @@ class FastApiSettings:
     title: str = "Pico-FastAPI App"
     version: str = "1.0.0"
     debug: bool = False
+    telemetry: Dict[str, Any] = field(default_factory=lambda: {"auto_configure": False})
 ```
 
 **Fields:**
@@ -235,6 +236,7 @@ class FastApiSettings:
 | `title` | `str` | `"Pico-FastAPI App"` | API title (shown in docs) |
 | `version` | `str` | `"1.0.0"` | API version |
 | `debug` | `bool` | `False` | Debug mode |
+| `telemetry` | `dict` | `{"auto_configure": False}` | FastAPI >= 0.142 built-in OpenTelemetry; the default stops FastAPI adding its own exporter (see [Configuration](config.md#telemetry-fastapi-0142)) |
 
 **Configuration:**
 

@@ -5,8 +5,8 @@ and the :class:`FastApiConfigurer` protocol (pluggable setup hooks with
 priority-based ordering).
 """
 
-from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from dataclasses import dataclass, field
+from typing import Any, Dict, Protocol, runtime_checkable
 
 from fastapi import FastAPI
 from pico_ioc import configured
@@ -79,6 +79,9 @@ class FastApiSettings:
         title: API title shown in the OpenAPI docs.
         version: API version string.
         debug: Enable FastAPI debug mode.
+        telemetry: Passed to FastAPI's built-in OpenTelemetry (FastAPI >= 0.142;
+            ignored by older versions). The default stops FastAPI from adding
+            its own OTLP exporter on top of the providers your app configures.
 
     Example:
         .. code-block:: yaml
@@ -93,3 +96,4 @@ class FastApiSettings:
     title: str = "Pico-FastAPI App"
     version: str = "1.0.0"
     debug: bool = False
+    telemetry: Dict[str, Any] = field(default_factory=lambda: {"auto_configure": False})

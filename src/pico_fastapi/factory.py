@@ -411,4 +411,6 @@ class FastApiAppFactory:
         Returns:
             A configured ``FastAPI`` application instance.
         """
-        return FastAPI(**dataclasses.asdict(settings))
+        # Shallow on purpose: asdict() deep-copies, and telemetry may carry
+        # OpenTelemetry providers that cannot be copied.
+        return FastAPI(**{f.name: getattr(settings, f.name) for f in dataclasses.fields(settings)})

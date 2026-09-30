@@ -204,6 +204,16 @@ fastapi:
 
 ---
 
+## OpenTelemetry (FastAPI >= 0.142)
+
+FastAPI 0.142 instruments apps with OpenTelemetry by default. pico-fastapi sets
+`fastapi.telemetry` to `{"auto_configure": False}` so FastAPI records spans against
+the providers your app configures (for example with pico-otel) but never adds a
+second exporter of its own. Any key FastAPI accepts for `telemetry` can be set under
+`fastapi.telemetry`; see [Configuration](https://dperezcabrera.github.io/pico-fastapi/reference/config/#telemetry-fastapi-0142).
+
+---
+
 ## JWT Authentication Configuration Example
 
 ```python
