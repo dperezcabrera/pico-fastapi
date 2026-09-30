@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+## v0.4.3 — FastAPI built-in telemetry without double export (2026-09-30)
+
 ### Added
 
 - `FastApiSettings.telemetry` (config key `fastapi.telemetry`) is passed to FastAPI's built-in OpenTelemetry (FastAPI >= 0.142; ignored by older versions).
