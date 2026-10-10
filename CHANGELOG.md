@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+### Fixed
+
+- The `status_code` given to a route decorator now reaches the response. `@post("/items", status_code=201)` answered 200, because the handler wrapped every plain return value in a 200 `JSONResponse`; the decorator's own docstring showed the broken example. A bodiless status (204, 304) now gets an empty response instead of a `null` body. An explicit `(content, status)` tuple still wins.
+
+### Changed
+
+- FastAPI 0.143 made its OpenTelemetry auto-configuration opt-in, so the double export that 0.4.3 prevented no longer happens upstream by default. The `{"auto_configure": False}` default stays: it keeps 0.142.x installs safe and overrides `FASTAPI_OTEL_AUTO_CONFIGURE=true`.
+
 ## v0.4.3 — FastAPI built-in telemetry without double export (2026-09-30)
 
 ### Added

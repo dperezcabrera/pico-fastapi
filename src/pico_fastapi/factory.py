@@ -44,7 +44,7 @@ def _priority_of(obj: Any) -> int:
         return 0
 
 
-def _normalize_http_result(result: Any) -> Response:
+def _normalize_http_result(result: Any, status_code: int = 200) -> Response:
     """Convert a controller return value into a Starlette ``Response``.
 
     Supports the following return conventions:
@@ -53,10 +53,12 @@ def _normalize_http_result(result: Any) -> Response:
     - A ``(content, status_code)`` or ``(content, status_code, headers)``
       tuple is converted to a ``JSONResponse``.
     - Any other value (including Pydantic models) is serialized as JSON
-      with status 200.
+      with the route's ``status_code`` (200 unless the decorator set one);
+      a bodiless status (204, 304) gets an empty response.
 
     Args:
         result: The value returned by a controller method.
+        status_code: The ``status_code`` declared on the route decorator.
 
     Returns:
         A Starlette ``Response`` suitable for the ASGI pipeline.
@@ -72,11 +74,14 @@ def _normalize_http_result(result: Any) -> Response:
             content = content.model_dump()
         return JSONResponse(content=content, status_code=status, headers=headers)
 
+    if status_code in (204, 304):
+        return Response(status_code=status_code)
+
     # Convert Pydantic models to dict
     if hasattr(result, "model_dump"):
         result = result.model_dump()
 
-    return JSONResponse(content=result)
+    return JSONResponse(content=result, status_code=status_code)
 
 
 def _copy_pico_markers(method, handler) -> None:
@@ -91,7 +96,9 @@ def _copy_pico_markers(method, handler) -> None:
             setattr(handler, attr, value)
 
 
-def _create_http_handler(container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature):
+def _create_http_handler(
+    container: PicoContainer, controller_cls: type, method_name: str, sig: inspect.Signature, status_code: int = 200
+):
     """Create an async HTTP route handler that resolves the controller via DI.
 
     The handler fetches a fresh controller instance from the container on
@@ -104,6 +111,7 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
         method_name: The name of the method to invoke.
         sig: The method's ``inspect.Signature`` (used to build the
             wrapper's signature, excluding ``self``).
+        status_code: The route's declared status, applied to plain return values.
 
     Returns:
         An async function suitable for ``APIRouter.add_api_route()``.
@@ -120,7 +128,7 @@ def _create_http_handler(container: PicoContainer, controller_cls: type, method_
         res = method_to_call(**kwargs)
         if inspect.isawaitable(res):
             res = await res
-        return _normalize_http_result(res)
+        return _normalize_http_result(res, status_code)
 
     params = list(sig.parameters.values())[1:]
     http_route_handler.__signature__ = sig.replace(parameters=params)
@@ -212,7 +220,7 @@ def _register_route(router: APIRouter, container: PicoContainer, cls: type, name
             **route_info["kwargs"],
         )
     else:
-        handler_func = _create_http_handler(container, cls, name, sig)
+        handler_func = _create_http_handler(container, cls, name, sig, route_info["kwargs"].get("status_code", 200))
         _copy_pico_markers(method, handler_func)
         router.add_api_route(
             path=route_info["path"],
