@@ -61,7 +61,9 @@ def _processors_after_app(scenario):
 def test_default_settings_keep_fastapi_from_adding_a_second_otlp_exporter():
     pytest.importorskip("opentelemetry.sdk.trace")
     pytest.importorskip("opentelemetry.exporter.otlp.proto.http")  # fastapi[opentelemetry]
-    # FastAPI's own default appends an OTLP exporter to the configured provider...
-    assert _processors_after_app("fastapi-default") == 2
-    # ...pico-fastapi's default setting prevents it.
+    # FastAPI 0.142 appended an OTLP exporter to the configured provider by
+    # default; 0.143 made auto_configure opt-in (FASTAPI_OTEL_AUTO_CONFIGURE).
+    upstream_doubles = Version(fastapi.__version__) < Version("0.143")
+    assert _processors_after_app("fastapi-default") == (2 if upstream_doubles else 1)
+    # pico-fastapi's default never adds a second exporter, on either version.
     assert _processors_after_app("default") == 1
