@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [Unreleased]
 
+## v0.4.4 — Route status codes reach the response (2026-10-16)
+
 ### Fixed
 
 - The `status_code` given to a route decorator now reaches the response. `@post("/items", status_code=201)` answered 200, because the handler wrapped every plain return value in a 200 `JSONResponse`; the decorator's own docstring showed the broken example. A bodiless status (204, 304) now gets an empty response instead of a `null` body. An explicit `(content, status)` tuple still wins.
